@@ -9,3 +9,5 @@ az account clear
 az config set core.enable_broker_on_windows=false
 az login
 ```
+
+https://learn.microsoft.com/en-us/azure/app-service/quickstart-custom-container?tabs=python&pivots=container-linux-azure-portal
