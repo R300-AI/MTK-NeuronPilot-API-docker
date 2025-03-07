@@ -8,6 +8,13 @@ wget https://itriaihub.blob.core.windows.net/github-download-resources/repositor
 az account clear
 az config set core.enable_broker_on_windows=false
 az login
+
+az acr login --name neuronpilot
+
+docker pull mcr.microsoft.com/mcr/hello-world
+docker tag mcr.microsoft.com/mcr/hello-world neuronpilot.azurecr.io/samples/hello-world
+
+docker push neuronpilot.azurecr.io/samples/hello-world
 ```
 
 https://learn.microsoft.com/en-us/azure/app-service/quickstart-custom-container?tabs=python&pivots=container-linux-azure-portal
