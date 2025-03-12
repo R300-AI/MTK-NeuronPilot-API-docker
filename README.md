@@ -1,8 +1,18 @@
 # NeuronPilot-Flask-Service-docker
+## Prepare Docker Container
 * Download NeuronPilot Package
 ```
 wget https://itriaihub.blob.core.windows.net/github-download-resources/repository/ITRI-AI-Hub/neuronpilot-6.0.5_x86_64.tar.gz
+mv neuronpilot-6.0.5_x86_64.tar.gz <path-tp-this-repo>
 ```
+* Build Docker Container
+```
+docker build -t my-flask-app .
+
+docker run -p 5000:80 my-flask-app
+```
+
+## Prepare Azure Resources
 * Login Azure CLI with subscription
 ```
 az account clear
