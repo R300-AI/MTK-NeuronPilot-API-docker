@@ -9,7 +9,6 @@
 
     ```sh
     git clone https://github.com/R300-AI/neuronpilot-flask-server.git && cd neuronpilot-flask-server
-    
     wget https://itriaihub.blob.core.windows.net/github-download-resources/repository/ITRI-AI-Hub/neuronpilot-6.0.5_x86_64.tar.gz
     ```
 
@@ -18,7 +17,6 @@
     Next, build the Docker image for the NeuronPilot Flask service.
     ```sh
     docker build -t neuronpilot-converter .
-    
     ```
 
 3. **Run the Docker container and test the NeuronPilot Flask service.**
