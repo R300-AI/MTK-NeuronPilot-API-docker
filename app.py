@@ -1,4 +1,4 @@
-import os, datetime, random, subprocess
+import os, datetime, random, subprocess, time
 from flask import (Flask, redirect, render_template, request,
                    send_from_directory, url_for)
 from werkzeug.utils import secure_filename
@@ -36,23 +36,33 @@ def upload_file():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            tflite_name = secure_filename(file.filename)
+            dla_name = tflite_name.rstrip('.tflite') + '.dla'
+
             seed = random_seed()
             print(f'Generate a upload instance:{seed}')
             os.makedirs(f"{app.config['UPLOAD_FOLDER']}/{seed}", exist_ok=True)
-            file_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", filename)
-            file.save(file_path)
 
-            result = subprocess.run(f"./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --arch=mdla3.0 --relax-fp32 {file_path}", shell=True, capture_output=True, text=True)
+            saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", tflite_name)
+            file.save(saved_path)
+            cmd = f"./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --arch=mdla3.0 --relax-fp32 {saved_path}"
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             print(f"Return code: {result.returncode}")
             print(f"Output: {result.stdout}")
             print(f"Error: {result.stderr}")
 
-            return send_from_directory(f"{app.config['UPLOAD_FOLDER']}/{seed}", filename)
+            if result.returncode == 0:
+                response = send_from_directory(f"{app.config['UPLOAD_FOLDER']}/{seed}", dla_name)
+                response.headers['name'] = dla_name
+                return response
+            else:
+                saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", "logs.txt")
+                with open(saved_path, 'w') as f:
+                    f.write(result.stdout + '\n' + result.stderr)
+                response = send_from_directory(f"{app.config['UPLOAD_FOLDER']}/{seed}", "logs.txt")
+                response.headers['name'] = "logs.txt"
+                return response
     return html
 
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=80)
-
-
-

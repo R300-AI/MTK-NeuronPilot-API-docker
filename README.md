@@ -1,15 +1,20 @@
 # NeuronPilot-Flask-Service-docker
 ## Prepare Docker Container
-* Download NeuronPilot Package
+* Download NeuronPilot package and move it to `neuronpilot-flask-server` folder.
 ```
-wget https://itriaihub.blob.core.windows.net/github-download-resources/repository/ITRI-AI-Hub/neuronpilot-6.0.5_x86_64.tar.gz
-mv neuronpilot-6.0.5_x86_64.tar.gz <path-tp-this-repo>
+$ wget https://itriaihub.blob.core.windows.net/github-download-resources/repository/ITRI-AI-Hub/neuronpilot-6.0.5_x86_64.tar.gz
+$ mv neuronpilot-6.0.5_x86_64.tar.gz <path-to-this-repository>
 ```
+
 * Build Docker Container
 ```
-docker build -t my-flask-app .
+$ docker build -t my-flask-app .
 
-docker run -p 5000:80 my-flask-app
+# Test on your browser `localhost:5000`
+$ docker run -e PYTHONUNBUFFERED=1 -p 5001:80 my-flask-app
+
+# Test inside container
+$ docker run -p 5001:80 -it my-flask-app
 ```
 
 ## Prepare Azure Resources
