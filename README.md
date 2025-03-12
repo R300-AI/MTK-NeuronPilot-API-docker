@@ -14,7 +14,7 @@
     mv neuronpilot-6.0.5_x86_64.tar.gz <path-to-this-repository>
     ```
 
-    Replace `<path-to-this-repository>` with the actual path to this repository.
+    * replace `<path-to-this-repository>` with the actual path to this repository.
 
 2. **Build the Docker image.**
 
