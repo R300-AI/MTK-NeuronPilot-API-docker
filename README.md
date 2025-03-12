@@ -5,7 +5,7 @@
 
 1. **Download the NeuronPilot package and move it to the `neuronpilot-flask-server` folder.**
 
-    First, download the NeuronPilot package and move it to the `neuronpilot-flask-server` folder.
+    First, clone this repository and download the NeuronPilot package.
 
     ```sh
     git clone https://github.com/R300-AI/neuronpilot-flask-server.git && cd neuronpilot-flask-server
