@@ -3,7 +3,7 @@
 > [Requirements]
 > * Docker Engine
 
-1. **Download the resources.**
+1. **Download the Resources.**
 
     First, clone this repository to your workstation and download the NeuronPilot package.
 
@@ -16,7 +16,7 @@
 
     Replace `<path-to-this-repository>` with the actual path to this repository.
 
-2. **Build the Docker image for the NeuronPilot Flask service.**
+2. **Build the Docker image.**
 
     Next, build the Docker image for the NeuronPilot Flask service.
     ```sh
