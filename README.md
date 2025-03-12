@@ -1,11 +1,11 @@
 # NeuronPilot-Flask-Service-docker
-## Prepare the Docker Image on Your Workstation
+## Prepare the Docker Image on Workstation
 > [Requirements]
 > * Docker Engine
 
 1. **Download the NeuronPilot package and move it to the `neuronpilot-flask-server` folder.**
 
-    First, clone this repository and download the NeuronPilot package.
+    First, clone this repository to your workstation and download the NeuronPilot package.
 
     ```sh
     git clone https://github.com/R300-AI/neuronpilot-flask-server.git && cd neuronpilot-flask-server
