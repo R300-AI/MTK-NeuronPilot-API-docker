@@ -38,7 +38,7 @@
 > [Requirements]
 > * A Participant in Azure Subscription
 
-* Login Azure CLI with subscription
+* Login Azure CLI and choice your subscription.
 ```
 az config set core.enable_broker_on_windows=false
 az login
