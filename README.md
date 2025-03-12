@@ -26,7 +26,6 @@
     ```bash
     python tools.py
     ```
-    or
     ```python
     from tools import Neuronpilot_WebAPI
 
