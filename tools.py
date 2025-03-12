@@ -1,6 +1,6 @@
 import requests, os
 
-def Neuronpilot_WebAPI(tflite_path, output_folder = './', url = 'http://localhost:5001/'):
+def Neuronpilot_WebAPI(tflite_path, output_folder = './', url = 'http://localhost:5000/'):
     response = requests.post(url, files={'file': open(tflite_path,'rb')})
     print(f"Status: {response.status_code}")
     
