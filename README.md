@@ -61,8 +61,7 @@ az login
     Build the Docker image using the Dockerfile and tag it with your Azure Container Registry name.
 
     ```sh
-    docker build -f Dockerfile -t ${registry_name}.azurecr.io/neuronpilot-converter .
-    docker tag neuronpilot-converter ${registry_name}.azurecr.io/neuronpilot-converter
+    docker tag neuronpilot-converter ${registry_name}.azurecr.io/neuronpilot-converter:latest
     ```
 
 4. **Push the Docker image to Azure Container Registry.**
