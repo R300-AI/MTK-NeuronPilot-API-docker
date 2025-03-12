@@ -45,8 +45,11 @@ az config set core.enable_broker_on_windows=false
 az login
 ```
 ```
-az acr login --name <your_registry_name>
-docker tag neuronpilot-converter <your_registry_name>.azurecr.io/neuronpilot-converter
+$registry_name='<your_registry_name>'
+
+az acr login --name $registry_name
+docker build -f Dockerfile -t ${registry_name}.azurecr.io/neuronpilot-converter .
+docker tag neuronpilot-converter ${registry_name}.azurecr.io/neuronpilot-converter
 ```
 ```
 docker push <your_registry_name>.azurecr.io/neuronpilot-converter:latest
