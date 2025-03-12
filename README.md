@@ -8,6 +8,8 @@ mv neuronpilot-6.0.5_x86_64.tar.gz <path-tp-this-repo>
 * Build Docker Container
 ```
 docker build -t my-flask-app .
+
+docker run -p 5000:80 my-flask-app
 ```
 
 ## Prepare Azure Resources
