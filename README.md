@@ -39,20 +39,36 @@
 > [Requirements]
 > * A Participant in Azure Subscription
 
+1. **Login to Azure CLI and select your subscription.**
+
 * Login Azure CLI and choice your subscription.
 ```
 az config set core.enable_broker_on_windows=false
 az login
 ```
-```
-$registry_name='<your_registry_name>'
 
-az acr login --name $registry_name
-docker build -f Dockerfile -t ${registry_name}.azurecr.io/neuronpilot-converter .
-docker tag neuronpilot-converter ${registry_name}.azurecr.io/neuronpilot-converter
-```
-```
-docker push <your_registry_name>.azurecr.io/neuronpilot-converter:latest
-```
+2. **Set the registry name and login to Azure Container Registry.**
 
-https://learn.microsoft.com/en-us/azure/app-service/quickstart-custom-container?tabs=python&pivots=container-linux-azure-portal
+    Set the `registry_name` environment variable to your Azure Container Registry name and login.
+
+    ```sh
+    $registry_name='<your_registry_name>'
+    az acr login --name $registry_name
+    ```
+
+3. **Build and tag the Docker image.**
+
+    Build the Docker image using the Dockerfile and tag it with your Azure Container Registry name.
+
+    ```sh
+    docker build -f Dockerfile -t ${registry_name}.azurecr.io/neuronpilot-converter .
+    docker tag neuronpilot-converter ${registry_name}.azurecr.io/neuronpilot-converter
+    ```
+
+4. **Push the Docker image to Azure Container Registry.**
+
+    Finally, push the Docker image to your Azure Container Registry.
+
+    ```sh
+    docker push ${registry_name}.azurecr.io/neuronpilot-converter:latest
+    ```
