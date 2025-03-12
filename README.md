@@ -3,7 +3,7 @@
 > [Requirements]
 > * Docker Engine
 
-1. **Download the source code from pre-built resources.**
+1. **Download the resources from pre-built library.**
 
     First, clone this repository to your workstation and download the NeuronPilot package.
 
