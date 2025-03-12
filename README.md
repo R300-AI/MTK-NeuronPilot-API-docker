@@ -3,7 +3,7 @@
 > [Requirements]
 > * Docker Engine
 
-1. **Download the NeuronPilot package and move it to the `neuronpilot-flask-server` folder.**
+1. **Download the source code from pre-built resources.**
 
     First, clone this repository to your workstation and download the NeuronPilot package.
 
