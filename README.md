@@ -8,6 +8,8 @@
     First, download the NeuronPilot package and move it to the `neuronpilot-flask-server` folder.
 
     ```sh
+    git clone https://github.com/R300-AI/neuronpilot-flask-server.git && cd neuronpilot-flask-server
+    
     wget https://itriaihub.blob.core.windows.net/github-download-resources/repository/ITRI-AI-Hub/neuronpilot-6.0.5_x86_64.tar.gz
     mv neuronpilot-6.0.5_x86_64.tar.gz <path-to-this-repository>
     ```
