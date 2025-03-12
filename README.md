@@ -40,7 +40,6 @@
 
 * Login Azure CLI with subscription
 ```
-az account clear
 az config set core.enable_broker_on_windows=false
 az login
 ```
