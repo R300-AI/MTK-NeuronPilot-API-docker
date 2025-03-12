@@ -34,7 +34,10 @@
     ```
     
 
-## Prepare Azure Resources
+## Prepare the Azure Resources
+> [Requirements]
+> * A Participant in Azure Subscription
+
 * Login Azure CLI with subscription
 ```
 az account clear
