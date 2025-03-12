@@ -19,14 +19,14 @@
     docker build -t neuronpilot-converter .
     ```
 
-3. **Run the Docker container and test the NeuronPilot Flask service.**
+3. **Test the NeuronPilot Flask Service.**
 
-    Then, run the Docker container and test the NeuronPilot Flask service to ensure it is working correctly.
-
+    Then, activate the Docker container with command `docker run -p 5000:80 neuronpilot-converter`. and use tools to verify it is working correctly.
 
     ```bash
-    docker run -p 5000:80 neuronpilot-converter
+    python tools.py
     ```
+    or
     ```python
     from tools import Neuronpilot_WebAPI
 
