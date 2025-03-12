@@ -1,5 +1,7 @@
 # NeuronPilot-Flask-Service-docker
-## Prepare the Docker Image
+## Prepare the Docker Image on Your Workstation
+> [Requirements]
+> * Docker Engine
 
 1. **Download the NeuronPilot package and move it to the `neuronpilot-flask-server` folder.**
 
