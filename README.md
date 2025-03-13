@@ -1,10 +1,16 @@
 # How to Deploy a NeuronPilot Microservice on Azure App Service?
 
+在這份文件中，您將學會如何在本機的伺服器工作站(x84_64)或Azure雲端建置一個NeuronPilot Converter，以此來為您的Client提供"將`.tflite`模型編譯為 `.dla`模型"的Restful API。
+
+如何不僅能學會如何透過Docker在x86_64的工作站上使用NeuronPilot Converter來將你的`.tflite`模型編譯成MTK Genio APU支援的`.dla`模型，。
+
 > [Requirements]
-> * **Docker Engine** installed
-> * An **Azure** account
-> * A **Subscription** with purchased Azure products and services
-> * A **Container Registry** resource on Azure (recommended to be named `AIhubMicroServiceContainers`)
+> * A x86_64 Workstation with **Docker Engine** installed.
+> 
+> # Cloud Service only
+> * An valid **Azure Service** account
+> * A **Subscription** with purchased Azure Services
+> * A **Container Registry** Resource for 存放你的 docker image  (recommended to be named `AIhubMicroServiceContainers`)
 
 ## Prepare the Docker Image on Workstation
 
@@ -37,9 +43,9 @@
     output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = 'http://localhost:5000/')
     print(f"Converted file saved at: {output_path}")
     ```
-    
 
-## Prepare the Azure Resources
+
+## Prepare the Azure Container Registry
 
 1. **Login to Azure CLI and select your subscription.**
 
