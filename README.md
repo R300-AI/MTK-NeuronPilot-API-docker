@@ -37,7 +37,10 @@
 
 ## Prepare the Azure Resources
 > [Requirements]
-> * A Participant in Azure Subscription
+> * An Azure Account
+> * A subscription to purchase Azure products and services
+> * An Azure **Container Registry** (recommended to be named `AIhubMicroServiceContainers`)
+
 
 1. **Login to Azure CLI and select your subscription.**
 
@@ -51,23 +54,22 @@ az login
 
     Set the `registry_name` environment variable to your Azure Container Registry name and login.
 
-    ```sh
-    $registry_name='<your_registry_name>'
-    az acr login --name $registry_name
+    ```bash
+    az acr login --name <registry_name>
     ```
 
 3. **Build and tag the Docker image.**
 
     Build the Docker image using the Dockerfile and tag it with your Azure Container Registry name.
 
-    ```sh
-    docker tag neuronpilot-converter ${registry_name}.azurecr.io/neuronpilot-converter:latest
+    ```bash
+    docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot:latest
     ```
 
 4. **Push the Docker image to Azure Container Registry.**
 
     Finally, push the Docker image to your Azure Container Registry.
 
-    ```sh
-    docker push ${registry_name}.azurecr.io/neuronpilot-converter:latest
+    ```bash
+    docker push <registry_name>.azurecr.io/neuronpilot-converter:latest
     ```
