@@ -19,7 +19,7 @@
 
 2. **Build the Docker image.**
 
-    Next, build the Docker image for the NeuronPilot Flask service.
+    Next, Set the your Azure Container Registry name to `registry_name` and build the Docker image for the NeuronPilot Flask service.
     ```sh
     docker build -f Dockerfile -t <registry_name>.azurecr.io/neuronpilot-converter .
     ```
@@ -52,7 +52,7 @@ az login
 
 2. **Set the registry name and login to Azure Container Registry.**
 
-    Set the `registry_name` environment variable to your Azure Container Registry name and login.
+    Set the your Azure Container Registry name to `registry_name` and login.
 
     ```bash
     az acr login --name <registry_name>
