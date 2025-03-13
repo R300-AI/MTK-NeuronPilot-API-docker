@@ -62,7 +62,7 @@
 
     Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **"Push to image" tutorial** at Container Registry's Portal.
     
-    ![Registry Portal](https://github.com/R300-AI/neuronpilot-flask-server/blob/main/static/images/registry_portal.png){:width="720"}
+    ![Registry Portal](https://github.com/R300-AI/neuronpilot-flask-server/blob/main/static/images/registry_portal.png)
 
     ```bash
     docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot
