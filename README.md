@@ -31,7 +31,6 @@
     ```bash
     python tools.py
     ```
-    `AIhubMicroServiceContainers`
     ```python
     from tools import Neuronpilot_WebAPI
 
