@@ -1,16 +1,15 @@
 # How to Deploy a NeuronPilot Microservice on Azure App Service?
 
-在這份文件中，您將學會如何在本機的伺服器工作站(x84_64)或Azure雲端建置一個NeuronPilot Converter，以此來為您的Client提供"將`.tflite`模型編譯為 `.dla`模型"的Restful API。
-
-如何不僅能學會如何透過Docker在x86_64的工作站上使用NeuronPilot Converter來將你的`.tflite`模型編譯成MTK Genio APU支援的`.dla`模型，。
+In this document, you will learn how to build a NeuronPilot Converter on a local server workstation (x86_64) or on Azure cloud to provide a Restful API for clients to convert `.tflite` models to `.dla` models.
 
 > [Requirements]
 > * A x86_64 Workstation with **Docker Engine** installed.
 > 
-> # Cloud Service only
-> * An valid **Azure Service** account
+> # Cloud-based Service only
+> * A valid **Azure Service** account
 > * A **Subscription** with purchased Azure Services
-> * A **Container Registry** Resource for 存放你的 docker image  (recommended to be named `AIhubMicroServiceContainers`)
+> * A **Container Registry** Resource for storing your docker image (recommended to be named `AIhubMicroServiceContainers`)
+
 
 ## Prepare the Docker Image on Workstation
 
@@ -25,18 +24,20 @@
 
 2. **Build the Docker image.**
 
-    Next, build the Docker image for the NeuronPilot Flask service.
+    Next, build the Docker image for the NeuronPilot Converter service.
+
     ```sh
     docker build -t neuronpilot-converter .
     ```
 
-3. **Test the NeuronPilot Flask Service.**
+3. **Test the NeuronPilot Service Locally.**
 
-    Then, activate the Docker container with command `docker run -p 5000:80 neuronpilot-converter`. and use tools to verify it is working correctly.
+    Then, activate the Docker container with the command `docker run -p 5000:80 neuronpilot-converter` and use tools to verify it is working correctly.
 
     ```bash
     python tools.py
     ```
+    * You can also use the provided Python API in the file to call the SDK.
     ```python
     from tools import Neuronpilot_WebAPI
 
@@ -49,7 +50,8 @@
 
 1. **Login to Azure CLI and select your subscription.**
 
-    Login Azure CLI and choice your subscription.
+    Login to Azure CLI and choose your subscription.
+
     ```
     az config set core.enable_broker_on_windows=false
     az login
@@ -57,7 +59,7 @@
 
 2. **Set the registry name and login to Azure Container Registry.**
 
-    Set your Azure Container Registry name to `registry_name` and login to Registry.
+    Set your Azure Container Registry name to `registry_name` and login to the Registry.
 
     ```bash
     az acr login --name <registry_name>
@@ -65,13 +67,12 @@
 
 3. **Build and tag the Docker image.**
 
-    Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **"Push an image" tutorial** at Container Registry's Portal.
+    Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **"Push an image" tutorial** at the Container Registry's Portal.
     
     ```bash
     docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot
     ```
     ![Registry Portal](https://github.com/R300-AI/neuronpilot-flask-server/blob/main/static/images/registry_portal.png)
-
 
 
 4. **Push the Docker image to Azure Container Registry.**
