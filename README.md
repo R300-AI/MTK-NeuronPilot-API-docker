@@ -16,12 +16,12 @@
 
     Next, build the Docker image for the NeuronPilot Flask service.
     ```sh
-    docker build -t neuronpilot-converter .
+    docker build -f Dockerfile -t <registry_name>.azurecr.io/neuronpilot-converter .
     ```
 
 3. **Test the NeuronPilot Flask Service.**
 
-    Then, activate the Docker container with command `docker run -p 5000:80 neuronpilot-converter`. and use tools to verify it is working correctly.
+    Then, activate the Docker container with command `docker run -p 5000:80 <registry_name>.azurecr.io/neuronpilot-converter`. and use tools to verify it is working correctly.
 
     ```bash
     python tools.py
