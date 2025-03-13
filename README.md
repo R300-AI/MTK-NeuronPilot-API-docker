@@ -2,9 +2,9 @@
 
 > [Requirements]
 > * **Docker Engine** installed
-> * An **Azure** Account
-> * A **Subscription** to purchase Azure products and services
-> * An Azure **Container Registry** (recommended to be named `AIhubMicroServiceContainers`)
+> * An **Azure** account
+> * A **Subscription** with purchased Azure products and services
+> * A **Container Registry** resource on Azure (recommended to be named `AIhubMicroServiceContainers`)
 
 ## Prepare the Docker Image on Workstation
 
