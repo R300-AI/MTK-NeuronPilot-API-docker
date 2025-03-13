@@ -44,15 +44,15 @@
 
 1. **Login to Azure CLI and select your subscription.**
 
-* Login Azure CLI and choice your subscription.
-```
-az config set core.enable_broker_on_windows=false
-az login
-```
+    Login Azure CLI and choice your subscription.
+    ```
+    az config set core.enable_broker_on_windows=false
+    az login
+    ```
 
 2. **Set the registry name and login to Azure Container Registry.**
 
-    Set the your Azure Container Registry name to `registry_name` and login.
+    Set your Azure Container Registry name to `registry_name` and login to Registry.
 
     ```bash
     az acr login --name <registry_name>
@@ -60,7 +60,8 @@ az login
 
 3. **Build and tag the Docker image.**
 
-    Tag the Docker image with your Azure Container Registry name. (follow the azure resource tutoiral push a image)
+        Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **Azure Container Registry's "Push to image" tutorial**
+
 
     ```bash
     docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot
