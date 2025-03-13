@@ -36,7 +36,7 @@
     from tools import Neuronpilot_WebAPI
 
     output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = 'http://localhost:5000/')
-    print(f"File output path: {output_path}")
+    print(f"Converted file saved at: {output_path}")
     ```
     
 

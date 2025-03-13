@@ -12,7 +12,7 @@ def Neuronpilot_WebAPI(tflite_path, output_folder = './', url = 'http://localhos
 
 if __name__ == '__main__':
     output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './')
-    print(f"File output path: {output_path}")
+    print(f"Converted file saved at: {output_path}")
 
 
 
