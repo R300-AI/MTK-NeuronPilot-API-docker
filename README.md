@@ -8,7 +8,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
 > :point_down:Cloud-based Service only
 > * A valid **Azure Service** account
 > * A **Subscription** with purchased Azure Services
-> * A **Container Registry** Resource for storing your docker image (recommended to be named `AIhubMicroServiceContainers`)
+> * A **Container Registry** Resource for storing your docker image (recommended to be named `MicroServiceContainer`)
 
 
 ## Prepare the Docker Image on Workstation
