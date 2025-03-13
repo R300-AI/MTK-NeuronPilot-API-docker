@@ -60,7 +60,7 @@
 
 3. **Build and tag the Docker image.**
 
-    Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **"Push to image" tutorial** at Container Registry's Portal.
+    Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **"Push an image" tutorial** at Container Registry's Portal.
     
     ```bash
     docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot
