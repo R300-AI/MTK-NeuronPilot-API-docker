@@ -1,7 +1,12 @@
 # How to Deploy a NeuronPilot Microservice on Azure App Service?
-## Prepare the Docker Image on Workstation
+
 > [Requirements]
 > * Docker Engine installed
+> * An Azure Account
+> * A subscription to purchase Azure products and services
+> * An Azure **Container Registry** (recommended to be named `AIhubMicroServiceContainers`)
+
+## Prepare the Docker Image on Workstation
 
 1. **Download the Resources.**
 
@@ -36,11 +41,6 @@
     
 
 ## Prepare the Azure Resources
-> [Requirements]
-> * An Azure Account
-> * A subscription to purchase Azure products and services
-> * An Azure **Container Registry** (recommended to be named `AIhubMicroServiceContainers`)
-
 
 1. **Login to Azure CLI and select your subscription.**
 
