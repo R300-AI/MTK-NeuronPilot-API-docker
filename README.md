@@ -19,14 +19,14 @@
 
 2. **Build the Docker image.**
 
-    Next, Set the your Azure Container Registry name to `registry_name`,  and build the Docker image for the NeuronPilot Flask service.
+    Next, build the Docker image for the NeuronPilot Flask service.
     ```sh
-    docker build -f Dockerfile -t <registry_name>.azurecr.io/neuronpilot-converter .
+    docker build -t neuronpilot-converter .
     ```
 
 3. **Test the NeuronPilot Flask Service.**
 
-    Then, activate the Docker container with command `docker run -p 5000:80 <registry_name>.azurecr.io/neuronpilot-converter`. and use tools to verify it is working correctly.
+    Then, activate the Docker container with command `docker run -p 5000:80 neuronpilot-converter`. and use tools to verify it is working correctly.
 
     ```bash
     python tools.py
@@ -60,10 +60,10 @@ az login
 
 3. **Build and tag the Docker image.**
 
-    Build the Docker image using the Dockerfile and tag it with your Azure Container Registry name.
+    Tag the Docker image with your Azure Container Registry name. (follow the azure resource tutoiral push a image)
 
     ```bash
-    docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot:latest
+    docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot
     ```
 
 4. **Push the Docker image to Azure Container Registry.**
@@ -71,5 +71,5 @@ az login
     Finally, push the Docker image to your Azure Container Registry.
 
     ```bash
-    docker push <registry_name>.azurecr.io/neuronpilot-converter:latest
+    docker push <registry_name>.azurecr.io/neuronpilot-converter
     ```
