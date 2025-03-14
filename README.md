@@ -77,7 +77,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
 
 ## Deploy Image to Azure App Service
 
-    * You can also use the provided Python API in the file to call the SDK.
+1. You can also use the provided Python API in the file to call the SDK.
     ```python
     from tools import Neuronpilot_WebAPI
 
