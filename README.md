@@ -3,7 +3,7 @@
 In this document, you will learn how to build a NeuronPilot Converter on a local server workstation (x86_64) or on Azure cloud to provide a Restful API for clients to convert `.tflite` models to `.dla` models.
 
 ### Requirements
-> * A x86_64 Workstation with **Docker Engine** installed.
+> * A x86_64 Workstation which **VS Code** and **Docker Engine** installed.
 > 
 > :point_down:Cloud-based Service only
 > * A valid **Azure Service** account
