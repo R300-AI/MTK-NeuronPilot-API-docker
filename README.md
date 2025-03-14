@@ -64,8 +64,8 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```bash
     docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot-converter
     ```
-    ![Registry Portal](https://github.com/R300-AI/neuronpilot-flask-server/blob/main/static/images/registry_portal.png)
 
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/registry_portal.png" width="600">
 
 4. **Push the Docker image to Azure Container Registry.**
 
