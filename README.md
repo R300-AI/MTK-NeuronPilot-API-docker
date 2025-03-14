@@ -19,7 +19,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
 
     ```sh
     git clone https://github.com/R300-AI/neuronpilot-flask-server.git && cd neuronpilot-flask-server
-    wget https://itriaihub.blob.core.windows.net/github-download-resources/repository/ITRI-AI-Hub/neuronpilot-6.0.5_x86_64.tar.gz
+    wget https://githubfileshare.blob.core.windows.net/repo/neuronpilot-flask-server/neuronpilot-6.0.5_x86_64.tar.gz
     ```
 
 2. **Build the Docker image.**
