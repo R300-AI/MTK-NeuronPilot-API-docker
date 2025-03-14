@@ -80,14 +80,14 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
 
 1. You can also use the provided Python API in the file to call the SDK.
 
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step1.png" width="900">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step2.png" width="400">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step3.png" width="400">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step4.png" width="400">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step5.png" width="400">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step6.png" width="400">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step7.png" width="400">
-    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step8.png" width="400">
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step1.png" width="900"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step2.png" width="600"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step3.png" width="600"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step4.png" width="600"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step5.png" width="600"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step6.png" width="600"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step7.png" width="600"><br>
+    <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step8.png" width="600"><br>
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step9.png" width="300">
     ```python
     from tools import Neuronpilot_WebAPI
