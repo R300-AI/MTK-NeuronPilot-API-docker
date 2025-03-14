@@ -37,14 +37,6 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```bash
     python tools.py
     ```
-    * You can also use the provided Python API in the file to call the SDK.
-    ```python
-    from tools import Neuronpilot_WebAPI
-
-    output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = 'http://localhost:5000/')
-    print(f"Converted file saved at: {output_path}")
-    ```
-
 
 ## Prepare the Azure Container Registry
 
@@ -84,3 +76,11 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```
 
 ## Deploy Image to Azure App Service
+
+1. You can also use the provided Python API in the file to call the SDK.
+    ```python
+    from tools import Neuronpilot_WebAPI
+
+    output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = '[http://localhost:5000/](https://<app-service-name>.azurewebsites.net/)')
+    print(f"Converted file saved at: {output_path}")
+    ```
