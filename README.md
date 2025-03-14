@@ -2,13 +2,13 @@
 
 In this document, you will learn how to build a NeuronPilot Converter on a local server workstation (x86_64) or on Azure cloud to provide a Restful API for clients to convert `.tflite` models to `.dla` models.
 
-> [Requirements]
-> * A x86_64 Workstation with **Docker Engine** installed.
+### Requirements
+> * A x86_64 Workstation which **VS Code** and **Docker Engine** installed.
 > 
-> # Cloud-based Service only
+> :point_down:Cloud-based Service only
 > * A valid **Azure Service** account
 > * A **Subscription** with purchased Azure Services
-> * A **Container Registry** Resource for storing your docker image (recommended to be named `AIhubMicroServiceContainers`)
+> * A **Container Registry** Resource for storing your docker image (recommended to be named `aihubmicroservice`)
 
 
 ## Prepare the Docker Image on Workstation
@@ -70,7 +70,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     Tag the Docker image with your Azure Container Registry name. For more details, you can refer to the **"Push an image" tutorial** at the Container Registry's Portal.
     
     ```bash
-    docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot
+    docker tag neuronpilot-converter <registry_name>.azurecr.io/neuronpilot-converter
     ```
     ![Registry Portal](https://github.com/R300-AI/neuronpilot-flask-server/blob/main/static/images/registry_portal.png)
 
@@ -82,3 +82,5 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```bash
     docker push <registry_name>.azurecr.io/neuronpilot-converter
     ```
+
+## Deploy Image to Azure App Service
