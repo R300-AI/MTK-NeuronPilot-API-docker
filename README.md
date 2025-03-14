@@ -3,7 +3,7 @@
 In this document, you will learn how to build a NeuronPilot Converter on a local server workstation (x86_64) or on Azure cloud to provide a Restful API for clients to convert `.tflite` models to `.dla` models.
 
 ### Requirements
-> * A x86_64 Workstation which **VS Code** and **Docker Engine** installed.
+> * A x86_64 Workstation with **VS Code** and **Docker Engine** installed.
 > 
 > :point_down:Cloud-based Service only
 > * A valid **Azure Service** account
@@ -37,6 +37,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```bash
     python tools.py
     ```
+
 
 ## Prepare the Azure Container Registry
 
@@ -75,20 +76,37 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     docker push <registry_name>.azurecr.io/neuronpilot-converter
     ```
 
+
 ## Deploy Image to Azure App Service (Must use VS Code)
 
-
-1. You can also use the provided Python API in the file to call the SDK.
-
+1. From the Docker extension in VS Code, select **Deploy Image to Azure App Service**.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step1.png" width="900"><br>
+
+2. Choose your **Subscription**.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step2.png" width="720"><br>
+
+3. Provide a name for your App Service. For example, `<app-service-name>` could be `app-aihub-neuronpilot`.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step3.png" width="720"><br>
+
+4. Select your **Resource Group**.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step4.png" width="720"><br>
+
+5. Choose **Create new App Service plan**.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step5.png" width="720"><br>
+
+6. Enter a name for your **App Service Plan**.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step6.png" width="720"><br>
+
+7. Select an appropriate pricing tier.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step7.png" width="720"><br>
+
+8. Disable redundancy.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step8.png" width="720"><br>
+
+9. Wait for the success notification to appear in the bottom right corner of VS Code.
     <img src="https://github.com/R300-AI/neuronpilot-flask-server/blob/main/images/deploy_service_tutorial/step9.png" width="600">
+    
+10. Finally, test the deployed service using the provided Python API.
     ```python
     from tools import Neuronpilot_WebAPI
 
