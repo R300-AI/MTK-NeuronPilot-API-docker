@@ -110,6 +110,6 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```python
     from tools import Neuronpilot_WebAPI
 
-    output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = '[http://localhost:5000/](https://<app-service-name>.azurewebsites.net/)')
+    output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = 'https://<app-service-name>.azurewebsites.net/')
     print(f"Converted file saved at: {output_path}")
     ```
