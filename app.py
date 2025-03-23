@@ -16,17 +16,16 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
-    html = """ 
-    <!doctype html>
-    <title>NeuronPilot Converter</title>
-    <h1>Upload your .tflite model</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    """
+    with open('index.html', 'r') as file:
+        html = file.read()
+
     if request.method == 'POST':
         print(request.url)
+        dtype = request.form.get('dtype')
+        device = request.form.get('device')
+        print(f"Device: {dtype}")
+        print(f"Device: {device}")
+        
         if 'file' not in request.files:
             html.replace('<h1>Upload your .tflite model</h1>', '<h1>.tflite file not found.</h1>')
             return redirect(request.url)
@@ -37,7 +36,7 @@ def upload_file():
 
         if file and allowed_file(file.filename):
             tflite_name = secure_filename(file.filename)
-            dla_name = tflite_name.rstrip('.tflite') + '.dla'
+            dla_name = tflite_name.rstrip('.tflite') + f'_{device}.dla'
 
             seed = random_seed()
             print(f'Generate a upload instance:{seed}')
@@ -56,11 +55,11 @@ def upload_file():
                 response.headers['name'] = dla_name
                 return response
             else:
-                saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", "logs.txt")
+                saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", "error_message.txt")
                 with open(saved_path, 'w') as f:
                     f.write(result.stdout + '\n' + result.stderr)
-                response = send_from_directory(f"{app.config['UPLOAD_FOLDER']}/{seed}", "logs.txt")
-                response.headers['name'] = "logs.txt"
+                response = send_from_directory(f"{app.config['UPLOAD_FOLDER']}/{seed}", "error_message.txt")
+                response.headers['name'] = "error_message.txt"
                 return response
     return html
 

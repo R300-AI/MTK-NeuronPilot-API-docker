@@ -1,0 +1,39 @@
+<!doctype html>
+<title>NeuronPilot Converter</title>
+<h1>Upload your .tflite model</h1>
+<form method=post enctype=multipart/form-data>
+  <input type=file name=file>
+  <select id="device-select" name="device">
+    <option value="mdla2.0">mdla2.0</option>
+    <option value="mdla3.0">mdla3.0</option>
+  </select>
+  <input type=hidden name="json_input" id="json-input">
+  <input type=submit value=Upload>
+</form>
+
+<table>
+    <thead>
+        <tr>
+        <th></th>
+        <th>Supported Device</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>Genio510, Genio700</td>
+        <td>mdla3.0, vpu</td>
+        </tr>
+        <tr>
+        <td>Genio1200</td>
+        <td>mdla2.0, vpu</td>
+        </tr>
+  </tbody>
+</table>
+
+<script>
+  document.querySelector('form').addEventListener('submit', function(event) {
+    const device = document.getElementById('device-select').value;
+    const jsonInput = JSON.stringify({ device: device });
+    document.getElementById('json-input').value = jsonInput;
+  });
+</script>

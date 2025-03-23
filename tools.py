@@ -1,7 +1,13 @@
-import requests, os
+import requests, os, argparse
 
-def Neuronpilot_WebAPI(tflite_path, output_folder = './', url = 'http://localhost:5000/'):
-    response = requests.post(url, files={'file': open(tflite_path,'rb')})
+def Neuronpilot_WebAPI(tflite_path, device, output_folder = './', url = 'http://192.168.1.213:80'):
+    allowed_devices = ['mdla2.0', 'mdla3.0', 'vpu']
+    assert device in allowed_devices, f"Device {device} is not allowed. Allowed devices are: {allowed_devices}"
+
+    response = requests.post(url, 
+                            files={'file': open(tflite_path,'rb')},
+                            data={'device': device}
+                            )
     print(f"Status: {response.status_code}")
     
     filename = response.headers.get('name')
@@ -11,7 +17,14 @@ def Neuronpilot_WebAPI(tflite_path, output_folder = './', url = 'http://localhos
     return output_path
 
 if __name__ == '__main__':
-    output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', output_folder = './', url = 'https://app-aihub-neuronpilot.azurewebsites.net/')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--url", default='https://app-aihub-neuronpilot.azurewebsites.net/', type=str)
+    args = parser.parse_args()
+
+    output_path = Neuronpilot_WebAPI(tflite_path = './uploads/yolov8n_float32.tflite', 
+                                     device = 'mdla3.0',
+                                     output_folder = './uploads',
+                                     url = args.url)
     print(f"Converted file saved at: {output_path}")
 
 
