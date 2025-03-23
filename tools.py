@@ -1,6 +1,6 @@
 import requests, os, argparse
 
-def Neuronpilot_WebAPI(tflite_path, device, output_folder = './', url = 'http://192.168.1.213:80'):
+def Neuronpilot_WebAPI(tflite_path, device, output_folder = './', url = 'http://localhost:80'):
     allowed_devices = ['mdla2.0', 'mdla3.0', 'vpu']
     assert device in allowed_devices, f"Device {device} is not allowed. Allowed devices are: {allowed_devices}"
 

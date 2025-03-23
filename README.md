@@ -37,8 +37,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     ```bash
     python tools.py --url http://localhost:5000
     ```
-
-
+    
 ## Prepare the Azure Container Registry
 
 1. **Login to Azure CLI and select your subscription.**

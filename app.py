@@ -21,9 +21,7 @@ def upload_file():
 
     if request.method == 'POST':
         print(request.url)
-        dtype = request.form.get('dtype')
         device = request.form.get('device')
-        print(f"Device: {dtype}")
         print(f"Device: {device}")
         
         if 'file' not in request.files:
@@ -36,23 +34,24 @@ def upload_file():
 
         if file and allowed_file(file.filename):
             tflite_name = secure_filename(file.filename)
-            dla_name = tflite_name.rstrip('.tflite') + f'_{device}.dla'
-
             seed = random_seed()
+
             print(f'Generate a upload instance:{seed}')
             os.makedirs(f"{app.config['UPLOAD_FOLDER']}/{seed}", exist_ok=True)
-
             saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", tflite_name)
             file.save(saved_path)
-            cmd = f"./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --arch=mdla3.0 --relax-fp32 {saved_path}"
+
+            cmd = f"./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --arch={device} --relax-fp32 {saved_path}"
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             print(f"Return code: {result.returncode}")
             print(f"Output: {result.stdout}")
             print(f"Error: {result.stderr}")
 
-            if result.returncode == 0:
+            if int(result.returncode) == 0:
+                dla_name = tflite_name.rstrip('.tflite') + '.dla'
                 response = send_from_directory(f"{app.config['UPLOAD_FOLDER']}/{seed}", dla_name)
-                response.headers['name'] = dla_name
+                device_name = device.replace('.', '_')
+                response.headers['name'] = dla_name.replace('.dla', f'_{device_name}.dla')
                 return response
             else:
                 saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", "error_message.txt")
