@@ -35,7 +35,7 @@ In this document, you will learn how to build a NeuronPilot Converter on a local
     Then, activate the Docker container with the command `docker run -p 5000:80 neuronpilot-converter` and use tools to verify it is working correctly.
 
     ```bash
-    python tools.py
+    python tools.py --url http://localhost:5000
     ```
 
 
