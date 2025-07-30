@@ -1,3 +1,4 @@
+
 import subprocess, json, time
 from flask import (Flask, redirect, request, send_from_directory, jsonify, Response)
 from werkzeug.utils import secure_filename
@@ -23,26 +24,65 @@ def api_index():
             '<button type="button" class="tab-btn" id="tab-tf" onclick="switchTab(\'tf\')">TensorFlow</button>',
             f'<button type="button" class="tab-btn" id="tab-tf" onclick="switchTab(\'tf\')">TensorFlow={tensorflow_version}</button>'
         )
-    
+    print('==> api_index: method =', request.method)
     if request.method == 'POST':
         if request.is_json:
+            print('==> api_index: is_json')
             data = request.get_json()
             action = data.get('action', 'convert_tflite')
             if action == 'verify_model':
+                print('==> api_index: call api_verify_model')
                 return api_verify_model(request)
         else:
-            action = request.form.get('action', 'convert_tflite')
-            if action == 'convert_model':
-                return api_convert_model(request, html)
+            print('==> api_index: not json')
+            action = request.form.get('action', '')
+            print(action)
+            if action == 'upload_and_verify':
+                print('==> api_index: call upload_and_verify')
+                return upload_and_verify()
     return html
+
+def generate_log(filename, save_path, user_id):
+    yield f"data: {{\"message\": \"📥 開始儲存檔案...\"}}\n\n"
+    yield f"data: {{\"message\": \"✅ 檔案已上傳: {filename}\"}}\n\n"
+    yield f"data: {{\"message\": \"📁 儲存路徑: {save_path}\"}}\n\n"
+    yield f"data: {{\"message\": \"🆔 user_id: {user_id}\"}}\n\n"
+    yield f"data: {{\"message\": \"(此處可串接自動驗證/轉換流程)\", \"final\": true}}\n\n"
+
+
+@app.route('/upload_and_verify', methods=['POST'])
+def upload_and_verify():
+    user_id = request.headers.get('X-User-ID')
+    if 'upload_pretrained_file' not in request.files:
+        def err():
+            yield f"data: {{\"message\": \"❌ 沒有收到檔案 (upload_pretrained_file)\", \"error\": true, \"final\": true}}\n\n"
+        return Response(err(), mimetype='text/event-stream', headers={'Cache-Control': 'no-cache', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*'})
+    file = request.files['upload_pretrained_file']
+    if file.filename == '':
+        def err():
+            yield f"data: {{\"message\": \"❌ 檔案名稱為空\", \"error\": true, \"final\": true}}\n\n"
+        return Response(err(), mimetype='text/event-stream', headers={'Cache-Control': 'no-cache', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*'})
+    if not allowed_file(file.filename):
+        def err():
+            yield f"data: {{\"message\": \"❌ 不支援的檔案格式\", \"error\": true, \"final\": true}}\n\n"
+        return Response(err(), mimetype='text/event-stream', headers={'Cache-Control': 'no-cache', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*'})
+    filename = secure_filename(file.filename)
+    save_dir = f'./users/{user_id}'
+    import os
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, filename)
+    file.save(save_path)
+    return Response(generate_log(filename, save_path, user_id), mimetype='text/event-stream', headers={'Cache-Control': 'no-cache', 'Connection': 'keep-alive', 'Access-Control-Allow-Origin': '*'})
 
 @app.route('/verify_model', methods=['POST'])
 def api_verify_model():
     data = request.get_json()
     user_id = request.headers.get('X-User-ID')
     pytorch_code = data.get('pytorch_code', '')
+    tf_code = data.get('tf_code', '')
     model_entrypoint = data.get('model_entrypoint', 'SimpleModel')
     input_shape = data.get('input_shape', '(1, 10)')
+
     return Response(convert_pytorch_to_tflite(
         user_id=user_id,
         pytorch_code=pytorch_code,
@@ -112,4 +152,4 @@ def api_convert_model(request, html):
     return html
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8083, debug=False)
+    app.run(host='0.0.0.0', port=8097, debug=False)

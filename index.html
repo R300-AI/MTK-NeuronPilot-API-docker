@@ -133,7 +133,7 @@
 
 <!-- Code-defined Neural Network Section -->
 <div class="section">
-    <h1 class="section-title">� Define Neural Network by Code</h1>
+    <h1 class="section-title">📤 Neural Network Verification</h1>
     <p>Define your neural network using code (supports PyTorch, TensorFlow, ONNX, etc.). The system will validate and export a standard model file for further conversion.</p>
 
     <form method="post" action="/" id="pytorch-verify-form">
@@ -154,18 +154,20 @@
                         </div>
                     </div>
                     <div id="editor-pytorch" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: block;"></div>
+                    <button type="submit" id="verify-btn-pytorch" class="submit-btn" style="margin-top: 10px;">Verify PyTorch Model</button>
                     <div id="editor-tf" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: none;"></div>
+                    <button type="submit" id="verify-btn-tf" class="submit-btn" style="margin-top: 10px; display: none;">Verify Tensorflow Model</button>
                     <div id="editor-upload" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: none;">
-                        <form id="upload-prebuilt-form" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; height: 100%; width: 100%;">
-                            <label for="upload-pretrained-file" style="font-weight: bold; margin-bottom: 12px;">Upload your prebuilt model file here:</label>
-                            <input id="upload-pretrained-file" type="file" name="upload_pretrained_file" accept=".tflite,.onnx,.pb,.h5,.pt,.pth,.ckpt" style="margin-bottom: 16px;">
-                            <span style="font-size: 13px; color: #888;">Supported formats: TFLite, ONNX</span>
-                            <button type="submit" class="submit-btn" style="margin-top: 18px;">Upload & Verify</button>
-                        </form>
+                      <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <label for="upload-pretrained-file" style="font-weight: bold; margin-bottom: 12px;">Upload your prebuilt model file here:</label>
+                        <input id="upload-pretrained-file" type="file" name="upload_pretrained_file" accept=".tflite,.onnx,.pb,.h5,.pt,.pth,.ckpt" style="margin-bottom: 16px;">
+                        <span style="font-size: 13px; color: #888;">Supported formats: TFLite, ONNX</span>
+                        <button type="button" id="verify-btn-upload" class="submit-btn" style="margin-top: 18px;">Upload and Verify Model</button>
+                      </div>
                     </div>
                 </div>
                 <input type="hidden" name="action" value="verify_pytorch">
-                <button type="submit" id="verify-btn" class="submit-btn">Verify & Export Model</button>
+
             </div>
 
             <div class="log-column" style="flex: 2; min-width: 350px; margin-left: 24px; display: flex; flex-direction: column; justify-content: flex-start;">
@@ -177,6 +179,7 @@
             </div>
         </div>
     </form>
+
 </div>
 
 <style>
@@ -194,25 +197,35 @@
 <script>
 // Monaco Editor 初始化
 let pytorchEditor, tfEditor;
-let pytorchDefault = `# Example: PyTorch Model\nimport torch\nimport torch.nn as nn\n\nclass SimpleModel(nn.Module):\n    def __init__(self):\n        super(SimpleModel, self).__init__()\n        self.fc1 = nn.Linear(10, 32)\n        self.fc2 = nn.Linear(32, 10)\n        self.relu = nn.ReLU()\n    \n    def forward(self, x):\n        x = self.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x`;
-let tfDefault = `# Example: TensorFlow Model\nimport tensorflow as tf\n\nclass SimpleModel(tf.keras.Model):\n    def __init__(self):\n        super(SimpleModel, self).__init__()\n        self.fc1 = tf.keras.layers.Dense(32, input_shape=(10,))\n        self.fc2 = tf.keras.layers.Dense(10)\n    def call(self, x):\n        x = tf.nn.relu(self.fc1(x))\n        return self.fc2(x)`;
+let pytorchDefault = `# Example: PyTorch Model\nimport torch\nimport torch.nn as nn\n\nclass SimpleModel(nn.Module):\n    def __init__(self):\n        super(SimpleModel, self).__init__()\n        # 在這裡定義你的 layer，例如 nn.Linear, nn.Conv2d 等\n        self.fc1 = nn.Linear(10, 32)\n        self.fc2 = nn.Linear(32, 10)\n        self.relu = nn.ReLU()\n    \n    def forward(self, x):\n        # 在這裡定義 forward 的運算流程 (tensor 的流動)\n        x = self.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x\n`;
+let tfDefault = `# Example: TensorFlow Model\nimport tensorflow as tf\n\nclass SimpleModel(tf.keras.Model):\n    def __init__(self):\n        super(SimpleModel, self).__init__()\n        # 在這裡定義你的 layer，例如 tf.keras.layers.Dense, Conv2D 等\n        self.fc1 = tf.keras.layers.Dense(32)\n        self.fc2 = tf.keras.layers.Dense(10)\n        self.relu = tf.keras.layers.ReLU()\n    def call(self, x):\n        # 在這裡定義 call 的運算流程 (tensor 的流動)\n        x = self.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x\n`;
 
 function switchTab(tab) {
+  // Tab 樣式
   document.getElementById('tab-pytorch').classList.remove('active');
   document.getElementById('tab-tf').classList.remove('active');
   document.getElementById('tab-upload').classList.remove('active');
   document.getElementById('editor-pytorch').style.display = 'none';
   document.getElementById('editor-tf').style.display = 'none';
   document.getElementById('editor-upload').style.display = 'none';
+  document.getElementById('verify-btn-pytorch').style.display = 'none';
+  document.getElementById('verify-btn-tf').style.display = 'none';
+  // upload tab 的按鈕在 form 裡, 直接用 display
+  var uploadBtn = document.getElementById('verify-btn-upload');
+  if (uploadBtn) uploadBtn.style.display = 'none';
+
   if(tab === 'pytorch') {
     document.getElementById('tab-pytorch').classList.add('active');
     document.getElementById('editor-pytorch').style.display = 'block';
+    document.getElementById('verify-btn-pytorch').style.display = '';
   } else if(tab === 'tf') {
     document.getElementById('tab-tf').classList.add('active');
     document.getElementById('editor-tf').style.display = 'block';
+    document.getElementById('verify-btn-tf').style.display = '';
   } else if(tab === 'upload') {
     document.getElementById('tab-upload').classList.add('active');
     document.getElementById('editor-upload').style.display = 'block';
+    if (uploadBtn) uploadBtn.style.display = '';
   }
 }
 
@@ -241,48 +254,88 @@ require(['vs/editor/editor.main'], function() {
 
 // 表單送出時將 Monaco 內容寫回 textarea（與後端相容）
 document.addEventListener('DOMContentLoaded', function() {
+  // 處理 Upload and Verify Model 按鈕（tab 內容, 非獨立form）
+  const verifyBtnUpload = document.getElementById('verify-btn-upload');
+  if (verifyBtnUpload) {
+    verifyBtnUpload.addEventListener('click', function(event) {
+      event.preventDefault();
+      const fileInput = document.getElementById('upload-pretrained-file');
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        addLogMessage('❌ 請選擇要上傳的模型檔案', true);
+        return;
+      }
+      verifyBtnUpload.disabled = true;
+      verifyBtnUpload.textContent = 'Uploading...';
+      addLogMessage('🚀 開始上傳並驗證模型...');
+      const formData = new FormData();
+      formData.append('upload_pretrained_file', fileInput.files[0]);
+      formData.append('action', 'upload_and_verify');
+      fetch('/upload_and_verify', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-User-ID': getUserId()
+        }
+      })
+      .then(async response => {
+        verifyBtnUpload.disabled = false;
+        verifyBtnUpload.textContent = 'Upload and Verify Model';
+        if (!response.ok) {
+          addLogMessage('❌ 上傳失敗', true);
+          return;
+        }
+        // SSE: 逐行顯示 log
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let sseBuffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          sseBuffer += decoder.decode(value, { stream: true });
+          let lines = sseBuffer.split('\n');
+          sseBuffer = lines.pop();
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.substring(6));
+                addLogMessage(data.message, data.error);
+              } catch (e) {}
+            }
+          }
+        }
+      })
+      .catch(err => {
+        verifyBtnUpload.disabled = false;
+        verifyBtnUpload.textContent = 'Upload and Verify Model';
+        addLogMessage('❌ 上傳過程發生錯誤: ' + err, true);
+      });
+    });
+  }
   const form = document.getElementById('pytorch-verify-form');
   if (form) {
     form.addEventListener('submit', function(e) {
-      // 若已存在則移除
+      // 送出前移除舊的欄位
       let oldPy = document.getElementById('pytorch_code');
       let oldTf = document.getElementById('tf_code');
       if (oldPy) oldPy.remove();
       if (oldTf) oldTf.remove();
-      // 新增隱藏欄位
+      // 送出目前 Monaco Editor 內容
       let py = document.createElement('textarea');
       py.id = 'pytorch_code';
       py.name = 'pytorch_code';
       py.style.display = 'none';
-      py.value = pytorchEditor.getValue();
+      py.value = pytorchEditor ? pytorchEditor.getValue() : '';
       form.appendChild(py);
       let tf = document.createElement('textarea');
       tf.id = 'tf_code';
       tf.name = 'tf_code';
       tf.style.display = 'none';
-      tf.value = tfEditor.getValue();
+      tf.value = tfEditor ? tfEditor.getValue() : '';
       form.appendChild(tf);
     });
   }
 });
 </script>
-
-
-
-
-<!-- Upload Pre-trained Model File Section -->
-<div class="section">
-    <h1 class="section-title">📤 Upload Pre-trained Model File</h1>
-    <p>Upload your pre-trained and exported model file (e.g., TFLite, ONNX, SavedModel) for conversion.</p>
-    <form method="post" enctype="multipart/form-data" id="upload-tflite-form">
-        <div class="form-group" style="display: flex; gap: 24px; align-items: center; margin-bottom: 10px;">
-            <label for="tflite-upload" style="margin-bottom: 0; min-width: 110px;">Model File:</label>
-            <input id="tflite-upload" type="file" name="file" accept=".tflite,.onnx,.pb" required style="width: 220px;">
-        </div>
-        <button type="submit" class="submit-btn">Upload Model</button>
-    </form>
-</div>
-
 
 <!-- Model Format Converter Section -->
 <div class="section">
@@ -430,28 +483,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle PyTorch verification form submission
     const pytorchVerifyForm = document.getElementById('pytorch-verify-form');
     const logOutput = document.getElementById('log-output');
-    const verifyBtn = document.getElementById('verify-btn');
+    const verifyBtnPy = document.getElementById('verify-btn-pytorch');
+    const verifyBtnTf = document.getElementById('verify-btn-tf');
     
     if (pytorchVerifyForm) {
-      pytorchVerifyForm.addEventListener('submit', async function(event) {
+      // PyTorch tab
+      verifyBtnPy.addEventListener('click', async function(event) {
         event.preventDefault();
-        // 顯示使用者代號
         const user_id = getUserId();
-        // Add separator and start message
         addLogMessage('🔍 開始 PyTorch 模型結構驗證');
         addLogMessage('============================================================');
-        // Disable verify button
-        verifyBtn.disabled = true;
-        verifyBtn.textContent = 'Verifying...';
+        verifyBtnPy.disabled = true;
+        verifyBtnPy.textContent = 'Verifying...';
         try {
-          // 收集表單資料
-          const formData = new FormData(pytorchVerifyForm);
-          const requestData = {
-            action: 'verify_pytorch',
-            pytorch_code: formData.get('pytorch_code'),
-            model_entrypoint: formData.get('model_entrypoint'),
-            input_shape: formData.get('input_shape'),
-          };
+        // 直接從 Monaco Editor 取得內容，避免 None 問題
+        const requestData = {
+          action: 'verify_pytorch',
+          pytorch_code: pytorchEditor ? pytorchEditor.getValue() : '',
+          tf_code: tfEditor ? tfEditor.getValue() : '',
+          model_entrypoint: document.getElementById('model_entrypoint').value,
+          input_shape: document.getElementById('input_shape').value,
+        };
           addLogMessage('建立 SSE 連線...');
           fetch('/verify_model', {
             method: 'POST',
@@ -464,65 +516,49 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
               throw new Error('Network response was not ok');
             }
-            
-            // 建立 EventSource 監聽即時日誌
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            
             function readStream() {
               return reader.read().then(({ done, value }) => {
                 if (done) {
-                  verifyBtn.disabled = false;
-                  verifyBtn.textContent = 'Verify Model';
+                  verifyBtnPy.disabled = false;
+                  verifyBtnPy.textContent = 'Verify Model';
                   return;
                 }
-                
                 const chunk = decoder.decode(value);
                 const lines = chunk.split('\n');
-                
                 lines.forEach(line => {
                   if (line.startsWith('data: ')) {
                     try {
                       const data = JSON.parse(line.substring(6));
-                      
                       if (data.message) {
                         const isError = data.error || data.message.includes('❌');
                         addLogMessage(data.message, isError);
                       }
-                      
                       if (data.final) {
-                        // if (data.success) {
-                        //   if (data.onnx_filename) {
-                        //     addLogMessage('✅ 驗證成功！檔案名稱: ' + data.onnx_filename);
-                        //   } else {
-                        //     addLogMessage('✅ PyTorch 模型結構驗證成功！');
-                        //   }
-                        // } else {
-                        //   addLogMessage('❌ PyTorch 模型驗證失敗', true);
-                        // }
                         addLogMessage('============================================================');
-                        verifyBtn.disabled = false;
-                        verifyBtn.textContent = 'Verify Model';
+                        verifyBtnPy.disabled = false;
+                        verifyBtnPy.textContent = 'Verify & Export Model';
                         return;
                       }
-                    } catch (e) {
-                      // 忽略解析錯誤
-                    }
+                    } catch (e) {}
                   }
                 });
-                
                 return readStream();
               });
             }
-            
             return readStream();
           });
-          
         } catch (error) {
           addLogMessage('❌ 連線錯誤: ' + error.message, true);
-          verifyBtn.disabled = false;
-          verifyBtn.textContent = 'Verify Model';
+          verifyBtnPy.disabled = false;
+          verifyBtnPy.textContent = 'Verify Model';
         }
+      });
+      // TensorFlow tab（預留，未實作驗證流程）
+      verifyBtnTf.addEventListener('click', function(event) {
+        event.preventDefault();
+        addLogMessage('TensorFlow 驗證尚未實作', true);
       });
     }
     
