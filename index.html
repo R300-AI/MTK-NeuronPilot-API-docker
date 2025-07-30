@@ -43,10 +43,11 @@
         }
         .log-output {
             width: 100%;
-            height: 250px;
+            min-height: 525px;
+            max-height: 800px;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
-            padding: 10px;
+            font-size: 13px;
+            padding: 14px 16px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #000;
@@ -54,6 +55,11 @@
             overflow-y: auto;
             white-space: pre-wrap;
             resize: vertical;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            box-sizing: border-box;
         }
         .form-group { 
             margin: 15px 0; 
@@ -154,9 +160,9 @@
                         </div>
                     </div>
                     <div id="editor-pytorch" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: block;"></div>
-                    <button type="submit" id="verify-btn-pytorch" class="submit-btn" style="margin-top: 10px;">Verify PyTorch Model</button>
+                    <button type="submit" id="verify-btn-pytorch" class="submit-btn" style="margin-top: 10px;">Verify Model</button>
                     <div id="editor-tf" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: none;"></div>
-                    <button type="submit" id="verify-btn-tf" class="submit-btn" style="margin-top: 10px; display: none;">Verify Tensorflow Model</button>
+                    <button type="submit" id="verify-btn-tf" class="submit-btn" style="margin-top: 10px; display: none;">Verify Model</button>
                     <div id="editor-upload" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: none;">
                       <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
                         <label for="upload-pretrained-file" style="font-weight: bold; margin-bottom: 12px;">Upload your prebuilt model file here:</label>
@@ -171,9 +177,9 @@
             </div>
 
             <div class="log-column" style="flex: 2; min-width: 350px; margin-left: 24px; display: flex; flex-direction: column; justify-content: flex-start;">
-                <div class="form-group" style="height: 480px; display: flex; flex-direction: column;">
-                    <label for="log-output">🖥️ LOG OUTPUT:</label>
-                    <div id="log-output" class="log-output" style="flex: 1; min-height: 350px; max-height: 480px;"><span style="color: #00ff00;">Ready to validate or upload your model. Please proceed with one of the options above.
+                <div class="form-group" style="padding-top: 0; margin-top: 0; display: flex; flex-direction: column; align-items: flex-start; width: 100%;">
+                    <label for="log-output" style="margin-bottom: 8px; margin-top: 2px; font-weight: bold;">🖥️ LOG OUTPUT:</label>
+                    <div id="log-output" class="log-output"><span style="color: #00ff00;">Ready to validate or upload your model. Please proceed with one of the options above.
 </span></div>
                 </div>
             </div>
@@ -492,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const user_id = getUserId();
         addLogMessage('🔍 開始 PyTorch 模型結構驗證');
-        addLogMessage('============================================================');
+        addLogMessage('=======================================');
         verifyBtnPy.disabled = true;
         verifyBtnPy.textContent = 'Verifying...';
         try {
@@ -536,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         addLogMessage(data.message, isError);
                       }
                       if (data.final) {
-                        addLogMessage('============================================================');
+                        addLogMessage('=======================================');
                         verifyBtnPy.disabled = false;
                         verifyBtnPy.textContent = 'Verify & Export Model';
                         return;
