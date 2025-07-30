@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       verifyBtnUpload.disabled = true;
       verifyBtnUpload.textContent = 'Uploading...';
+      updateDeviceFamilyAndDevices();
       addLogMessage('🚀 開始上傳並驗證模型...');
       const formData = new FormData();
       formData.append('upload_pretrained_file', fileInput.files[0]);
@@ -313,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(err => {
         verifyBtnUpload.disabled = false;
         verifyBtnUpload.textContent = 'Upload and Verify Model';
+        updateDeviceFamilyAndDevices();
         addLogMessage('❌ 上傳過程發生錯誤: ' + err, true);
       });
     });
@@ -352,9 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <label for="genio-select">Target Device Family:</label>
             <select id="genio-select" name="genio_device" onchange="updateSupportedDevices()">
                 <option value="">-- Select Device Family --</option>
-                <option value="genio510">Genio 510</option>
-                <option value="genio700">Genio 700</option>
-                <option value="genio1200">Genio 1200</option>
             </select>
         </div>
         <div class="form-row">
@@ -375,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <table class="compatibility-table">
         <thead>
             <tr>
-                <th>Genio Device</th>
+                <th>Genio Board</th>
                 <th>Supported Devices</th>
                 <th>Architecture</th>
             </tr>
@@ -425,6 +424,69 @@ document.addEventListener('DOMContentLoaded', function() {
         deviceSelect.appendChild(option);
       });
     } else {
+      deviceSelect.disabled = true;
+    }
+  }
+
+  // 新增：根據後端回傳動態更新 Target Device Family 與 Target Device
+  async function updateDeviceFamilyAndDevices() {
+    const user_id = getUserId();
+    const genioSelect = document.getElementById('genio-select');
+    const deviceSelect = document.getElementById('device-select');
+    // Device Compatibility Reference: 只允許這些 Genio Board
+    const supportedFamilies = {
+      'genio510': 'Genio 510',
+      'genio700': 'Genio 700',
+      'genio1200': 'Genio 1200'
+    };
+    genioSelect.innerHTML = '<option value="">-- Select Device Family --</option>';
+    deviceSelect.innerHTML = '<option value="">-- Select Device Family First --</option>';
+    deviceSelect.disabled = true;
+    try {
+      const res = await fetch('/get_available_devices', {
+        method: 'GET',
+        headers: { 'X-User-ID': user_id }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      // 只顯示支援的 Genio Board
+      let hasFamily = false;
+      for (const family in supportedFamilies) {
+        if (data[family] && Array.isArray(data[family]) && data[family].length > 0) {
+          hasFamily = true;
+          const option = document.createElement('option');
+          option.value = family;
+          option.textContent = supportedFamilies[family];
+          genioSelect.appendChild(option);
+        }
+      }
+      if (!hasFamily) {
+        genioSelect.innerHTML = '<option value="">-- No Supported Device Family --</option>';
+        deviceSelect.innerHTML = '<option value="">-- No Device --</option>';
+        deviceSelect.disabled = true;
+        return;
+      }
+      // 當選擇 family 時，動態更新 device
+      genioSelect.onchange = function() {
+        const selected = genioSelect.value;
+        deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+        if (selected && data[selected] && data[selected].length > 0) {
+          deviceSelect.disabled = false;
+          data[selected].forEach(function(device) {
+            const option = document.createElement('option');
+            option.value = device;
+            option.textContent = device;
+            deviceSelect.appendChild(option);
+          });
+        } else {
+          deviceSelect.disabled = true;
+        }
+      };
+      // 若目前有選擇，立即觸發一次
+      genioSelect.onchange();
+    } catch (e) {
+      genioSelect.innerHTML = '<option value=\"\">-- Error Loading Device Family --</option>';
+      deviceSelect.innerHTML = '<option value=\"\">-- Error --</option>';
       deviceSelect.disabled = true;
     }
   }
@@ -529,6 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (done) {
                   verifyBtnPy.disabled = false;
                   verifyBtnPy.textContent = 'Verify Model';
+                  updateDeviceFamilyAndDevices();
                   return;
                 }
                 const chunk = decoder.decode(value);
@@ -545,6 +608,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         addLogMessage('=======================================');
                         verifyBtnPy.disabled = false;
                         verifyBtnPy.textContent = 'Verify & Export Model';
+                        updateDeviceFamilyAndDevices();
                         return;
                       }
                     } catch (e) {}
@@ -565,6 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
       verifyBtnTf.addEventListener('click', function(event) {
         event.preventDefault();
         addLogMessage('TensorFlow 驗證尚未實作', true);
+        updateDeviceFamilyAndDevices();
       });
     }
     

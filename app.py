@@ -88,5 +88,28 @@ def api_verify_model():
              'Connection': 'keep-alive',
              'Access-Control-Allow-Origin': '*'})
 
+@app.route('/get_available_devices', methods=['GET'])
+def get_available_devices():
+    user_id = request.headers.get('X-User-ID')
+    export_dir = os.path.join('users', user_id, 'export')
+    supported_families = {
+        'genio510': ['mdla3.0', 'vpu'],
+        'genio700': ['mdla3.0', 'vpu'],
+        'genio1200': ['mdla2.0', 'vpu'],
+    }
+    result = {}
+    if os.path.exists(export_dir):
+        for family, devices in supported_families.items():
+            family_dir = os.path.join(export_dir, family)
+            if os.path.isdir(family_dir):
+                available = []
+                for d in devices:
+                    if os.path.isdir(os.path.join(family_dir, d)):
+                        available.append(d)
+                if available:
+                    result[family] = available
+    print(result)
+    return jsonify(result)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8092, debug=False)
+    app.run(host='0.0.0.0', port=8082, debug=False)
