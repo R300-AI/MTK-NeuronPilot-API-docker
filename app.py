@@ -2,7 +2,7 @@
 import subprocess, json, time
 from flask import (Flask, redirect, request, send_from_directory, jsonify, Response)
 from werkzeug.utils import secure_filename
-from utils.file import verify_and_convert_to_tflite
+from utils.file import verify_uploded_file
 from utils.converter import convert_pytorch_to_tflite
 import torch
 import os
@@ -56,9 +56,10 @@ def upload_and_verify():
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, filename)
     file.save(save_path)
-    return Response(verify_and_convert_to_tflite(
+    return Response(verify_uploded_file(
         filename, 
-        save_path
+        save_path,
+        user_id
         ), 
         mimetype='text/event-stream', 
         headers={'Cache-Control': 'no-cache',
@@ -88,4 +89,4 @@ def api_verify_model():
              'Access-Control-Allow-Origin': '*'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8083, debug=False)
+    app.run(host='0.0.0.0', port=8092, debug=False)

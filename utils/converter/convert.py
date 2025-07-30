@@ -39,6 +39,10 @@ def tflite_to_mdla3(tflite_path):
             raise RuntimeError(f"ncc-tflite failed: {result.stdout}\n{result.stderr}")
         if not os.path.exists(dla_path):
             raise RuntimeError(f"DLA 檔案未產生於 {dla_path}")
+        # Rename file: replace('.dla', '_mdla3.dla'), update dla_path
+        mdla3_path = dla_path.replace('.dla', '_mdla3.dla')
+        os.rename(dla_path, mdla3_path)
+        dla_path = mdla3_path
         print(f"[dla] 產生成功: {dla_path}")
         return dla_path
     except Exception as e:
@@ -58,6 +62,10 @@ def tflite_to_mdla2(tflite_path):
             raise RuntimeError(f"ncc-tflite failed: {result.stdout}\n{result.stderr}")
         if not os.path.exists(dla_path):
             raise RuntimeError(f"DLA 檔案未產生於 {dla_path}")
+        # Rename file: replace('.dla', '_mdla2.dla'), update dla_path
+        mdla2_path = dla_path.replace('.dla', '_mdla2.dla')
+        os.rename(dla_path, mdla2_path)
+        dla_path = mdla2_path
         print(f"[dla] 產生成功: {dla_path}")
         return dla_path
     except Exception as e:
@@ -78,6 +86,10 @@ def tflite_to_vpu(tflite_path):
             raise RuntimeError(f"ncc-tflite failed: {result.stdout}\n{result.stderr}")
         if not os.path.exists(dla_path):
             raise RuntimeError(f"DLA 檔案未產生於 {dla_path}")
+        # Rename file: replace('.dla', '_vpu.dla'), update dla_path
+        vpu_path = dla_path.replace('.dla', '_vpu.dla')
+        os.rename(dla_path, vpu_path)
+        dla_path = vpu_path
         print(f"[dla] 產生成功: {dla_path}")
         return dla_path
     except Exception as e:
