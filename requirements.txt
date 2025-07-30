@@ -1,2 +1,13 @@
 Flask==3.1.0
 gunicorn
+
+# Get PyTorch Toolset
+ultralytics  
+tf_keras
+sng4onnx>=1.0.1
+onnx_graphsurgeon>=0.3.26
+ai-edge-litert>=1.2.0,<1.4.0
+onnx>=1.12.0,<1.18.0
+onnx2tf>=1.26.3
+onnxslim>=0.1.59
+onnxruntime

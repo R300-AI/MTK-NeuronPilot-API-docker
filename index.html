@@ -1,40 +1,573 @@
 <!doctype html>
-<title>NeuronPilot Converter</title>
-<h1>Upload your .tflite model</h1>
-<form method=post enctype=multipart/form-data>
-  <input type=file name=file>
-  <select id="device-select" name="device">
-    <option value="mdla3.0">mdla3.0</option>
-    <option value="mdla2.0">mdla2.0</option>
-    <option value="vpu">vpu</option>
-  </select>
-  <input type=hidden name="json_input" id="json-input">
-  <input type=submit value=Upload>
-</form>
+<html>
+<head>
+    <title>🚀 NeuronPilot AI Model Porting Platform</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .section { 
+            margin: 30px 0; 
+            padding: 25px; 
+            background: white;
+            border: 1px solid #ddd; 
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .code-editor { 
+            width: 100%; 
+            height: 300px; 
+            font-family: 'Courier New', monospace; 
+            font-size: 14px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            background-color: #f8f8f8;
+        }
+        .log-output {
+            width: 100%;
+            height: 250px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #000;
+            color: #00ff00;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            resize: vertical;
+        }
+        .form-group { 
+            margin: 15px 0; 
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            margin: 10px 0;
+        }
+        .form-row label {
+            min-width: 150px;
+            font-weight: bold;
+        }
+        .form-row select, .form-row input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-column {
+            flex: 1;
+        }
+        .log-column {
+            flex: 1;
+        }
+        .submit-btn { 
+            background-color: #667eea; 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .submit-btn:hover { 
+            background-color: #5a67d8; 
+        }
+        .submit-btn:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        label { 
+            font-weight: bold; 
+            margin-right: 10px; 
+        }
+        input[type="text"] { 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            width: 300px;
+        }
+        .compatibility-table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            margin-top: 20px; 
+        }
+        .compatibility-table th, .compatibility-table td { 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            text-align: left; 
+        }
+        .compatibility-table th { 
+            background-color: #f2f2f2; 
+        }
+    </style>
+</head>
+<body>
 
-<table border="1">
-    <thead>
-        <tr>
-        <th></th>
-        <th>Supported Device</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-        <td>Genio510, Genio700</td>
-        <td>mdla3.0, vpu</td>
-        </tr>
-        <tr>
-        <td>Genio1200</td>
-        <td>mdla2.0, vpu</td>
-        </tr>
-  </tbody>
-</table>
+<div class="header">
+    <h1>🚀 NeuronPilot AI Model Porting Platform</h1>
+    <p>Fast AI Model Deployment to NPU - Compatibility Check & Auto Conversion</p>
+</div>
+
+
+
+<!-- Code-defined Neural Network Section -->
+<div class="section">
+    <h1 class="section-title">� Define Neural Network by Code</h1>
+    <p>Define your neural network using code (supports PyTorch, TensorFlow, ONNX, etc.). The system will validate and export a standard model file for further conversion.</p>
+
+    <form method="post" action="/" id="pytorch-verify-form">
+        <div class="form-row">
+            <div class="form-column" style="flex: 3; min-width: 350px;">
+                <div class="form-group" style="display: flex; gap: 24px; align-items: center; margin-bottom: 10px;">
+                    <label for="model_entrypoint" style="margin-bottom: 0; min-width: 120px;">Model Entrypoint:</label>
+                    <input type="text" id="model_entrypoint" name="model_entrypoint" value="SimpleModel" required style="width: 180px; margin-right: 32px;">
+                    <label for="input_shape" style="margin-bottom: 0; min-width: 90px;">Input Shape:</label>
+                    <input type="text" id="input_shape" name="input_shape" value="(1, 10)" required style="width: 180px;">
+                </div>
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <div class="tabs" style="margin-bottom: 0; display: flex; align-items: center;">
+                            <button type="button" class="tab-btn active" id="tab-pytorch" onclick="switchTab('pytorch')">PyTorch</button>
+                            <button type="button" class="tab-btn" id="tab-tf" onclick="switchTab('tf')">TensorFlow</button>
+                            <button type="button" class="tab-btn" id="tab-upload" onclick="switchTab('upload')">Upload Prebuilt Model</button>
+                        </div>
+                    </div>
+                    <div id="editor-pytorch" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: block;"></div>
+                    <div id="editor-tf" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: none;"></div>
+                    <div id="editor-upload" class="tab-content" style="flex: 1; min-height: 400px; max-height: 600px; display: none;">
+                        <form id="upload-prebuilt-form" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; height: 100%; width: 100%;">
+                            <label for="upload-pretrained-file" style="font-weight: bold; margin-bottom: 12px;">Upload your prebuilt model file here:</label>
+                            <input id="upload-pretrained-file" type="file" name="upload_pretrained_file" accept=".tflite,.onnx,.pb,.h5,.pt,.pth,.ckpt" style="margin-bottom: 16px;">
+                            <span style="font-size: 13px; color: #888;">Supported formats: TFLite, ONNX</span>
+                            <button type="submit" class="submit-btn" style="margin-top: 18px;">Upload & Verify</button>
+                        </form>
+                    </div>
+                </div>
+                <input type="hidden" name="action" value="verify_pytorch">
+                <button type="submit" id="verify-btn" class="submit-btn">Verify & Export Model</button>
+            </div>
+
+            <div class="log-column" style="flex: 2; min-width: 350px; margin-left: 24px; display: flex; flex-direction: column; justify-content: flex-start;">
+                <div class="form-group" style="height: 480px; display: flex; flex-direction: column;">
+                    <label for="log-output">🖥️ LOG OUTPUT:</label>
+                    <div id="log-output" class="log-output" style="flex: 1; min-height: 350px; max-height: 480px;"><span style="color: #00ff00;">Ready to validate or upload your model. Please proceed with one of the options above.
+</span></div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+.tabs { margin-bottom: 8px; }
+.tab-btn {
+  background: #eee; border: none; padding: 8px 22px; cursor: pointer; font-size: 15px;
+  border-radius: 6px 6px 0 0; margin-right: 2px;
+}
+.tab-btn.active { background: #667eea; color: #fff; }
+.tab-content { margin-top: 0; }
+</style>
+<!-- Monaco Editor CDN -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+</style>
+<script>
+// Monaco Editor 初始化
+let pytorchEditor, tfEditor;
+let pytorchDefault = `# Example: PyTorch Model\nimport torch\nimport torch.nn as nn\n\nclass SimpleModel(nn.Module):\n    def __init__(self):\n        super(SimpleModel, self).__init__()\n        self.fc1 = nn.Linear(10, 32)\n        self.fc2 = nn.Linear(32, 10)\n        self.relu = nn.ReLU()\n    \n    def forward(self, x):\n        x = self.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x`;
+let tfDefault = `# Example: TensorFlow Model\nimport tensorflow as tf\n\nclass SimpleModel(tf.keras.Model):\n    def __init__(self):\n        super(SimpleModel, self).__init__()\n        self.fc1 = tf.keras.layers.Dense(32, input_shape=(10,))\n        self.fc2 = tf.keras.layers.Dense(10)\n    def call(self, x):\n        x = tf.nn.relu(self.fc1(x))\n        return self.fc2(x)`;
+
+function switchTab(tab) {
+  document.getElementById('tab-pytorch').classList.remove('active');
+  document.getElementById('tab-tf').classList.remove('active');
+  document.getElementById('tab-upload').classList.remove('active');
+  document.getElementById('editor-pytorch').style.display = 'none';
+  document.getElementById('editor-tf').style.display = 'none';
+  document.getElementById('editor-upload').style.display = 'none';
+  if(tab === 'pytorch') {
+    document.getElementById('tab-pytorch').classList.add('active');
+    document.getElementById('editor-pytorch').style.display = 'block';
+  } else if(tab === 'tf') {
+    document.getElementById('tab-tf').classList.add('active');
+    document.getElementById('editor-tf').style.display = 'block';
+  } else if(tab === 'upload') {
+    document.getElementById('tab-upload').classList.add('active');
+    document.getElementById('editor-upload').style.display = 'block';
+  }
+}
+
+// 初始化 Monaco Editor
+require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
+window.MonacoEnvironment = { getWorkerUrl: function() { return 'data:text/javascript;charset=utf-8,' + encodeURIComponent('self.MonacoEnvironment = {baseUrl: \'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/\'}; importScripts(\'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/base/worker/workerMain.js\');'); } };
+require(['vs/editor/editor.main'], function() {
+  pytorchEditor = monaco.editor.create(document.getElementById('editor-pytorch'), {
+    value: pytorchDefault,
+    language: 'python',
+    theme: 'vs-dark',
+    fontSize: 14,
+    minimap: { enabled: false },
+    automaticLayout: true
+  });
+  tfEditor = monaco.editor.create(document.getElementById('editor-tf'), {
+    value: tfDefault,
+    language: 'python',
+    theme: 'vs-dark',
+    fontSize: 14,
+    minimap: { enabled: false },
+    automaticLayout: true
+  });
+  // No Monaco editor for upload tab
+});
+
+// 表單送出時將 Monaco 內容寫回 textarea（與後端相容）
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('pytorch-verify-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      // 若已存在則移除
+      let oldPy = document.getElementById('pytorch_code');
+      let oldTf = document.getElementById('tf_code');
+      if (oldPy) oldPy.remove();
+      if (oldTf) oldTf.remove();
+      // 新增隱藏欄位
+      let py = document.createElement('textarea');
+      py.id = 'pytorch_code';
+      py.name = 'pytorch_code';
+      py.style.display = 'none';
+      py.value = pytorchEditor.getValue();
+      form.appendChild(py);
+      let tf = document.createElement('textarea');
+      tf.id = 'tf_code';
+      tf.name = 'tf_code';
+      tf.style.display = 'none';
+      tf.value = tfEditor.getValue();
+      form.appendChild(tf);
+    });
+  }
+});
+</script>
+
+
+
+
+<!-- Upload Pre-trained Model File Section -->
+<div class="section">
+    <h1 class="section-title">📤 Upload Pre-trained Model File</h1>
+    <p>Upload your pre-trained and exported model file (e.g., TFLite, ONNX, SavedModel) for conversion.</p>
+    <form method="post" enctype="multipart/form-data" id="upload-tflite-form">
+        <div class="form-group" style="display: flex; gap: 24px; align-items: center; margin-bottom: 10px;">
+            <label for="tflite-upload" style="margin-bottom: 0; min-width: 110px;">Model File:</label>
+            <input id="tflite-upload" type="file" name="file" accept=".tflite,.onnx,.pb" required style="width: 220px;">
+        </div>
+        <button type="submit" class="submit-btn">Upload Model</button>
+    </form>
+</div>
+
+
+<!-- Model Format Converter Section -->
+<div class="section">
+    <h1 class="section-title">🔄 Model Format Converter</h1>
+    <p>Convert your validated or uploaded model file to DLA format for NPU deployment. This function is enabled after a valid model file is provided.</p>
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-row">
+            <label for="genio-select">Target Device Family:</label>
+            <select id="genio-select" name="genio_device" onchange="updateSupportedDevices()">
+                <option value="">-- Select Device Family --</option>
+                <option value="genio510">Genio 510</option>
+                <option value="genio700">Genio 700</option>
+                <option value="genio1200">Genio 1200</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="device-select">Target Device:</label>
+            <select id="device-select" name="device" disabled>
+                <option value="">-- Select Device Family First --</option>
+            </select>
+        </div>
+        <input type="hidden" name="action" value="convert_tflite">
+        <button type="submit" class="submit-btn">Convert to DLA</button>
+    </form>
+</div>
+</div>
+
+<!-- Device Compatibility Reference -->
+<div class="section">
+    <h2 class="section-title">📋 Device Compatibility Reference</h2>
+    <table class="compatibility-table">
+        <thead>
+            <tr>
+                <th>Genio Device</th>
+                <th>Supported Devices</th>
+                <th>Architecture</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Genio 510</td>
+                <td>mdla3.0, vpu</td>
+                <td>MDLA 3.0 + VPU</td>
+            </tr>
+            <tr>
+                <td>Genio 700</td>
+                <td>mdla3.0, vpu</td>
+                <td>MDLA 3.0 + VPU</td>
+            </tr>
+            <tr>
+                <td>Genio 1200</td>
+                <td>mdla2.0, vpu</td>
+                <td>MDLA 2.0 + VPU</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <script>
-  document.querySelector('form').addEventListener('submit', function(event) {
-    const device = document.getElementById('device-select').value;
-    const jsonInput = JSON.stringify({ device: device });
-    document.getElementById('json-input').value = jsonInput;
+  // Device mapping configuration
+  const deviceMapping = {
+    'genio510': ['mdla3.0', 'vpu'],
+    'genio700': ['mdla3.0', 'vpu'],
+    'genio1200': ['mdla2.0', 'vpu']
+  };
+
+  // Function to update supported devices for TFLite conversion
+  function updateSupportedDevices() {
+    const genioSelect = document.getElementById('genio-select');
+    const deviceSelect = document.getElementById('device-select');
+    const selectedGenio = genioSelect.value;
+    
+    deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+    
+    if (selectedGenio && deviceMapping[selectedGenio]) {
+      deviceSelect.disabled = false;
+      deviceMapping[selectedGenio].forEach(function(device) {
+        const option = document.createElement('option');
+        option.value = device;
+        option.textContent = device;
+        deviceSelect.appendChild(option);
+      });
+    } else {
+      deviceSelect.disabled = true;
+    }
+  }
+
+  // Function to add timestamped log messages
+  function addLogMessage(message, isError = false) {
+    const logOutput = document.getElementById('log-output');
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Create a span element for colored text
+    const logSpan = document.createElement('span');
+    logSpan.style.color = isError ? '#ff4444' : '#00ff00';
+    logSpan.textContent = `[${timestamp}] ${message}\n`;
+    
+    // Append the new message to the log output
+    logOutput.appendChild(logSpan);
+    logOutput.scrollTop = logOutput.scrollHeight;
+  }
+
+  // Function to display logs from backend
+  function displayBackendLogs(logs) {
+    if (logs && Array.isArray(logs)) {
+      logs.forEach(log => {
+        const isError = log.includes('❌') || log.includes('ERROR') || log.includes('Error');
+        addLogMessage(log, isError);
+      });
+    }
+  }
+
+  // Handle form submissions
+  function getUserId() {
+    let user_id = localStorage.getItem('user_id');
+    if (!user_id) {
+      user_id = self.crypto && self.crypto.randomUUID ? self.crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('user_id', user_id);
+    }
+    return user_id;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle TFLite form submission
+    const tfliteForm = document.querySelector('form[enctype="multipart/form-data"]');
+    if (tfliteForm) {
+      tfliteForm.addEventListener('submit', function(event) {
+        const genioDevice = document.getElementById('genio-select').value;
+        const device = document.getElementById('device-select').value;
+        
+        if (!genioDevice) {
+          alert('Please select a Genio device.');
+          event.preventDefault();
+          return;
+        }
+        
+        if (!device) {
+          alert('Please select a supported device.');
+          event.preventDefault();
+          return;
+        }
+      });
+    }
+    
+    // Handle PyTorch verification form submission
+    const pytorchVerifyForm = document.getElementById('pytorch-verify-form');
+    const logOutput = document.getElementById('log-output');
+    const verifyBtn = document.getElementById('verify-btn');
+    
+    if (pytorchVerifyForm) {
+      pytorchVerifyForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        // 顯示使用者代號
+        const user_id = getUserId();
+        // Add separator and start message
+        addLogMessage('🔍 開始 PyTorch 模型結構驗證');
+        addLogMessage('============================================================');
+        // Disable verify button
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = 'Verifying...';
+        try {
+          // 收集表單資料
+          const formData = new FormData(pytorchVerifyForm);
+          const requestData = {
+            action: 'verify_pytorch',
+            pytorch_code: formData.get('pytorch_code'),
+            model_entrypoint: formData.get('model_entrypoint'),
+            input_shape: formData.get('input_shape'),
+          };
+          addLogMessage('建立 SSE 連線...');
+          fetch('/verify_pytorch', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-ID': user_id
+            },
+            body: JSON.stringify(requestData)
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            
+            // 建立 EventSource 監聽即時日誌
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            function readStream() {
+              return reader.read().then(({ done, value }) => {
+                if (done) {
+                  verifyBtn.disabled = false;
+                  verifyBtn.textContent = 'Verify Model';
+                  return;
+                }
+                
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                
+                lines.forEach(line => {
+                  if (line.startsWith('data: ')) {
+                    try {
+                      const data = JSON.parse(line.substring(6));
+                      
+                      if (data.message) {
+                        const isError = data.error || data.message.includes('❌');
+                        addLogMessage(data.message, isError);
+                      }
+                      
+                      if (data.final) {
+                        // if (data.success) {
+                        //   if (data.onnx_filename) {
+                        //     addLogMessage('✅ 驗證成功！檔案名稱: ' + data.onnx_filename);
+                        //   } else {
+                        //     addLogMessage('✅ PyTorch 模型結構驗證成功！');
+                        //   }
+                        // } else {
+                        //   addLogMessage('❌ PyTorch 模型驗證失敗', true);
+                        // }
+                        addLogMessage('============================================================');
+                        verifyBtn.disabled = false;
+                        verifyBtn.textContent = 'Verify Model';
+                        return;
+                      }
+                    } catch (e) {
+                      // 忽略解析錯誤
+                    }
+                  }
+                });
+                
+                return readStream();
+              });
+            }
+            
+            return readStream();
+          });
+          
+        } catch (error) {
+          addLogMessage('❌ 連線錯誤: ' + error.message, true);
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = 'Verify Model';
+        }
+      });
+    }
+    
+    // PyTorch textarea enhancements
+    const pytorchTextarea = document.getElementById('pytorch_code');
+    if (pytorchTextarea) {
+      pytorchTextarea.addEventListener('focus', function() {
+        this.style.backgroundColor = '#ffffff';
+      });
+      pytorchTextarea.addEventListener('blur', function() {
+        this.style.backgroundColor = '#f8f8f8';
+      });
+      
+      pytorchTextarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = this.selectionStart;
+          const end = this.selectionEnd;
+          this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+          this.selectionStart = this.selectionEnd = start + 4;
+        }
+      });
+    }
+    
+
+    // 頁面載入時自動顯示 user_id
+    window.addEventListener('DOMContentLoaded', function() {
+      var logDiv = document.getElementById('log-output');
+      if (logDiv) {
+        logDiv.innerHTML = '';
+        // 預設訊息
+        const defaultSpan = document.createElement('span');
+        defaultSpan.style.color = '#00ff00';
+        defaultSpan.textContent = 'Ready to verify PyTorch model structure...\nClick "Verify Model" to start the verification process.\n';
+        logDiv.appendChild(defaultSpan);
+        // 英文 user_id 訊息
+        const user_id = getUserId();
+        const idSpan = document.createElement('span');
+        idSpan.style.color = '#00ff00';
+        idSpan.textContent = 'Your session ID: ' + user_id + '\n';
+        logDiv.appendChild(idSpan);
+      }
+    });
   });
 </script>
+
+</body>
+</html>
