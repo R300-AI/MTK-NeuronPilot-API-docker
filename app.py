@@ -3,69 +3,61 @@ from flask import (Flask, redirect, request, send_from_directory, jsonify, Respo
 from werkzeug.utils import secure_filename
 from utils.file_namagement import allowed_file, random_seed
 from utils.converter import convert_pytorch_to_tflite
-
+import torch
+import tensorflow as tf
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './uploads'
 
 @app.route('/', methods=['GET', 'POST'])
-def upload_file():
-    print("[upload_file] open index.html")
+def api_index():
     with open('index.html', 'r') as file:
         html = file.read()
-    print(f"[upload_file] request.method = {request.method}")
+        pytorch_version = torch.__version__
+        tensorflow_version = tf.__version__
+        html = html.replace(
+            '<button type="button" class="tab-btn active" id="tab-pytorch" onclick="switchTab(\'pytorch\')">PyTorch</button>',
+            f'<button type="button" class="tab-btn active" id="tab-pytorch" onclick="switchTab(\'pytorch\')">PyTorch={pytorch_version}</button>'
+        )
+        html = html.replace(
+            '<button type="button" class="tab-btn" id="tab-tf" onclick="switchTab(\'tf\')">TensorFlow</button>',
+            f'<button type="button" class="tab-btn" id="tab-tf" onclick="switchTab(\'tf\')">TensorFlow={tensorflow_version}</button>'
+        )
+    
     if request.method == 'POST':
-        print("[upload_file] POST received")
         if request.is_json:
-            print("[upload_file] request.is_json = True")
             data = request.get_json()
-            print(f"[upload_file] data = {data}")
             action = data.get('action', 'convert_tflite')
-            print(f"[upload_file] action = {action}")
-            if action == 'verify_pytorch':
-                print("[upload_file] call handle_pytorch_verification")
-                return handle_pytorch_verification(request)
+            if action == 'verify_model':
+                return api_verify_model(request)
         else:
-            print("[upload_file] request.is_json = False")
             action = request.form.get('action', 'convert_tflite')
-            print(f"[upload_file] form action = {action}")
-            if action == 'convert_tflite':
-                print("[upload_file] call handle_tflite_conversion")
-                return handle_tflite_conversion(request, html)
-    print("[upload_file] return html")
+            if action == 'convert_model':
+                return api_convert_model(request, html)
     return html
 
-@app.route('/verify_pytorch', methods=['POST'])
-def handle_pytorch_verification():
-    print("[handle_pytorch_verification] IN /verify_pytorch")
+@app.route('/verify_model', methods=['POST'])
+def api_verify_model():
     data = request.get_json()
-    print(f"[handle_pytorch_verification] data = {data}")
     user_id = request.headers.get('X-User-ID')
-    print(f"[handle_pytorch_verification] user_id = {user_id}")
     pytorch_code = data.get('pytorch_code', '')
-    print(f"[handle_pytorch_verification] pytorch_code length = {len(pytorch_code)}")
     model_entrypoint = data.get('model_entrypoint', 'SimpleModel')
-    print(f"[handle_pytorch_verification] model_entrypoint = {model_entrypoint}")
     input_shape = data.get('input_shape', '(1, 10)')
-    print(f"[handle_pytorch_verification] input_shape = {input_shape}")
-    print("[handle_pytorch_verification] call convert_pytorch_to_tflite")
     return Response(convert_pytorch_to_tflite(
-            user_id=user_id,
-            pytorch_code=pytorch_code,
-            model_entrypoint=model_entrypoint,
-            input_shape=input_shape
-        ),
-        mimetype='text/event-stream',
-        headers={'Cache-Control': 'no-cache',
-                 'Connection': 'keep-alive',
-                 'Access-Control-Allow-Origin': '*'})
+        user_id=user_id,
+        pytorch_code=pytorch_code,
+        model_entrypoint=model_entrypoint,
+        input_shape=input_shape
+    ),
+    mimetype='text/event-stream',
+    headers={'Cache-Control': 'no-cache',
+             'Connection': 'keep-alive',
+             'Access-Control-Allow-Origin': '*'})
 
-def handle_tflite_conversion(request, html):
+def api_convert_model(request, html):
     genio_device = request.form.get('genio_device')
     device = request.form.get('device')
     
-    print(f"📝 Genio Device: {genio_device}")
-    print(f"📝 Device: {device}")
     
     device_mapping = {
         'genio510': ['mdla3.0', 'vpu'],
@@ -91,16 +83,11 @@ def handle_tflite_conversion(request, html):
     if file.filename == '':
         html = html.replace('<h1>🔄 TensorFlow Lite Model Upload</h1>', 
                            '<h1>❌ .tflite file not found.</h1>')
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
         tflite_name = secure_filename(file.filename)
         seed = random_seed()
         print(f'📝 Generate upload instance: {seed}')
         print(f'📝 Processing for {genio_device.upper()} with {device}')
         os.makedirs(f"{app.config['UPLOAD_FOLDER']}/{seed}", exist_ok=True)
-        saved_path = os.path.join(f"{app.config['UPLOAD_FOLDER']}/{seed}", tflite_name)
-        file.save(saved_path)
-        cmd = f"./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --arch={device} --relax-fp32 {saved_path}"
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         print(f"📝 Return code: {result.returncode}")
         print(f"📝 Output: {result.stdout}")
@@ -125,4 +112,4 @@ def handle_tflite_conversion(request, html):
     return html
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8092, debug=False)
+    app.run(host='0.0.0.0', port=8083, debug=False)

@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
             input_shape: formData.get('input_shape'),
           };
           addLogMessage('建立 SSE 連線...');
-          fetch('/verify_pytorch', {
+          fetch('/verify_model', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
