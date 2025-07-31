@@ -135,8 +135,6 @@
     <p>Fast AI Model Deployment to NPU - Compatibility Check & Auto Conversion</p>
 </div>
 
-
-
 <!-- Code-defined Neural Network Section -->
 <div class="section">
     <h1 class="section-title">📤 Neural Network Verification</h1>
@@ -272,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       verifyBtnUpload.disabled = true;
       verifyBtnUpload.textContent = 'Uploading...';
-      updateDeviceFamilyAndDevices();
+
       addLogMessage('🚀 開始上傳並驗證模型...');
       const formData = new FormData();
       formData.append('upload_pretrained_file', fileInput.files[0]);
@@ -314,7 +312,6 @@ document.addEventListener('DOMContentLoaded', function() {
       .catch(err => {
         verifyBtnUpload.disabled = false;
         verifyBtnUpload.textContent = 'Upload and Verify Model';
-        updateDeviceFamilyAndDevices();
         addLogMessage('❌ 上傳過程發生錯誤: ' + err, true);
       });
     });
@@ -352,18 +349,18 @@ document.addEventListener('DOMContentLoaded', function() {
     <form method="post" enctype="multipart/form-data">
         <div class="form-row">
             <label for="genio-select">Target Device Family:</label>
-            <select id="genio-select" name="genio_device" onchange="updateSupportedDevices()">
+            <select id="genio-select" name="genio_device" onchange="updateSupportedDevices(); toggleDownloadButton();">
                 <option value="">-- Select Device Family --</option>
             </select>
         </div>
         <div class="form-row">
             <label for="device-select">Target Device:</label>
-            <select id="device-select" name="device" disabled>
-                <option value="">-- Select Device Family First --</option>
+            <select id="device-select" name="device" disabled onchange="toggleDownloadButton();">
+                <option value="">-- Select Supported Device --</option>
             </select>
         </div>
         <input type="hidden" name="action" value="convert_tflite">
-        <button type="submit" class="submit-btn">Convert to DLA</button>
+        <button type="button" class="submit-btn" id="download-dla-btn" disabled>Download DLA</button>
     </form>
 </div>
 </div>
@@ -591,7 +588,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (done) {
                   verifyBtnPy.disabled = false;
                   verifyBtnPy.textContent = 'Verify Model';
-                  updateDeviceFamilyAndDevices();
                   return;
                 }
                 const chunk = decoder.decode(value);
@@ -606,9 +602,92 @@ document.addEventListener('DOMContentLoaded', function() {
                       }
                       if (data.final) {
                         addLogMessage('=======================================');
-                        verifyBtnPy.disabled = false;
-                        verifyBtnPy.textContent = 'Verify & Export Model';
-                        updateDeviceFamilyAndDevices();
+                        // 如果有 genio510的任一設備為True (vpu, mdla2, mdla3)，則在Target Device Family:的下拉式選單新增genio510的選項，而當使用者在device famify選中genio510時，Target Device的下拉式選單則會列出其vpu, mdla2, mdla3三者之中為true者
+                        addLogMessage(data.genio510.vpu)
+                        addLogMessage(data.genio510.mdla2)
+                        addLogMessage(data.genio510.mdla3)
+
+                        // 如果有 genio700的任一設備為True (vpu, mdla2, mdla3)，則在Target Device Family:的下拉式選單新增genio700的選項，而當使用者在device famify選中genio700時，Target Device的下拉式選單則會列出其vpu, mdla2, mdla3三者之中為true者
+                        addLogMessage(data.genio700.vpu)
+                        addLogMessage(data.genio700.mdla2)
+                        addLogMessage(data.genio700.mdla3)
+
+                        // 如果有 genio1200的任一設備為True (vpu, mdla2, mdla3)，則在Target Device Family:的下拉式選單新增genio1200的選項，而當使用者在device famify選中genio1200時，Target Device的下拉式選單則會列出其vpu, mdla2, mdla3三者之中為true者
+                        addLogMessage(data.genio1200.vpu)
+                        addLogMessage(data.genio1200.mdla2)
+                        addLogMessage(data.genio1200.mdla3)
+
+                        // Update dropdowns
+                        const genioSelect = document.getElementById('genio-select');
+                        const deviceSelect = document.getElementById('device-select');
+
+                        // Clear and initialize dropdowns
+                        genioSelect.innerHTML = '<option value="">-- Select Device Family --</option>';
+                        deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+                        deviceSelect.disabled = true;
+
+                        // Add Genio 510 if any device is supported
+                        if (data.genio510.vpu || data.genio510.mdla2 || data.genio510.mdla3) {
+                            const option = document.createElement('option');
+                            option.value = 'genio510';
+                            option.textContent = 'Genio 510';
+                            genioSelect.appendChild(option);
+                            addLogMessage('Added Genio 510 to device family dropdown.');
+                        }
+
+                        // Add Genio 700 if any device is supported
+                        if (data.genio700.vpu || data.genio700.mdla2 || data.genio700.mdla3) {
+                            const option = document.createElement('option');
+                            option.value = 'genio700';
+                            option.textContent = 'Genio 700';
+                            genioSelect.appendChild(option);
+                            addLogMessage('Added Genio 700 to device family dropdown.');
+                        }
+
+                        // Add Genio 1200 if any device is supported
+                        if (data.genio1200.vpu || data.genio1200.mdla2 || data.genio1200.mdla3) {
+                            const option = document.createElement('option');
+                            option.value = 'genio1200';
+                            option.textContent = 'Genio 1200';
+                            genioSelect.appendChild(option);
+                            addLogMessage('Added Genio 1200 to device family dropdown.');
+                        }
+
+                        // Update target devices based on the selected family
+                        genioSelect.onchange = function () {
+                            const selectedFamily = genioSelect.value;
+                            deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+                            addLogMessage(`Selected device family: ${selectedFamily}`);
+                            if (selectedFamily) {
+                                if (data[selectedFamily]?.vpu) {
+                                    const option = document.createElement('option');
+                                    option.value = 'vpu';
+                                    option.textContent = 'VPU';
+                                    deviceSelect.appendChild(option);
+                                    addLogMessage('Added VPU to target device dropdown.');
+                                }
+                                if (data[selectedFamily]?.mdla2) {
+                                    const option = document.createElement('option');
+                                    option.value = 'mdla2.0';
+                                    option.textContent = 'MDLA 2.0';
+                                    deviceSelect.appendChild(option);
+                                    addLogMessage('Added MDLA 2.0 to target device dropdown.');
+                                }
+                                if (data[selectedFamily]?.mdla3) {
+                                    const option = document.createElement('option');
+                                    option.value = 'mdla3.0';
+                                    option.textContent = 'MDLA 3.0';
+                                    deviceSelect.appendChild(option);
+                                    addLogMessage('Added MDLA 3.0 to target device dropdown.');
+                                }
+                                deviceSelect.disabled = false;
+                            } else {
+                                deviceSelect.disabled = true;
+                                addLogMessage('No target devices available for the selected family.');
+                            }
+                        };
+
+                        addLogMessage('=======================================');
                         return;
                       }
                     } catch (e) {}
@@ -629,7 +708,6 @@ document.addEventListener('DOMContentLoaded', function() {
       verifyBtnTf.addEventListener('click', function(event) {
         event.preventDefault();
         addLogMessage('TensorFlow 驗證尚未實作', true);
-        updateDeviceFamilyAndDevices();
       });
     }
     
@@ -673,7 +751,131 @@ document.addEventListener('DOMContentLoaded', function() {
         logDiv.appendChild(idSpan);
       }
     });
+
+    // 新增：掛載 Download DLA 按鈕事件
+    const downloadBtn = document.getElementById('download-dla-btn');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadDLAFile();
+      });
+    }
   });
+
+  function updateDropdowns(data) {
+    const genioSelect = document.getElementById('genio-select');
+    const deviceSelect = document.getElementById('device-select');
+
+    // 清空並初始化下拉選單
+    genioSelect.innerHTML = '<option value="">-- Select Device Family --</option>';
+    deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+    deviceSelect.disabled = true;
+
+    // 遍歷 data 中的列表數據，為 genioSelect 添加選項
+    Object.keys(data).forEach(family => {
+        if (Array.isArray(data[family]) && data[family].length > 0) {
+            const option = document.createElement('option');
+            option.value = family;
+            option.textContent = family.charAt(0).toUpperCase() + family.slice(1);
+            genioSelect.appendChild(option);
+        }
+    });
+
+    // 當選擇 family 時，更新 deviceSelect 下拉選單
+    genioSelect.onchange = function () {
+        const selectedFamily = genioSelect.value;
+        deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+        if (selectedFamily && Array.isArray(data[selectedFamily])) {
+            data[selectedFamily].forEach(device => {
+                const option = document.createElement('option');
+                option.value = device;
+                option.textContent = device;
+                deviceSelect.appendChild(option);
+            });
+            deviceSelect.disabled = false;
+        } else {
+            deviceSelect.disabled = true;
+        }
+    };
+  }
+
+  // Function to toggle the "Download DLA" button based on dropdown selections
+  function toggleDownloadButton() {
+    const genioSelect = document.getElementById('genio-select');
+    const deviceSelect = document.getElementById('device-select');
+    const downloadButton = document.getElementById('download-dla-btn');
+
+    // Ensure the button is enabled only if both dropdowns have valid selections
+    if (genioSelect.value && deviceSelect.value) {
+        downloadButton.disabled = false;
+        downloadButton.style.backgroundColor = '#667eea'; // Enable button (blue)
+        downloadButton.style.pointerEvents = 'auto'; // Allow clicking
+    } else {
+        downloadButton.disabled = true;
+        downloadButton.style.backgroundColor = '#a0a0a0'; // Disable button (grey)
+        downloadButton.style.pointerEvents = 'none'; // Prevent clicking
+    }
+  }
+
+  // 新增：Download DLA 檔案的函式
+  async function downloadDLAFile() {
+    const genioSelect = document.getElementById('genio-select');
+    const deviceSelect = document.getElementById('device-select');
+    const user_id = getUserId();
+    const downloadButton = document.getElementById('download-dla-btn');
+
+    if (!genioSelect.value || !deviceSelect.value) {
+      alert('Please select both device family and device.');
+      return;
+    }
+
+    downloadButton.disabled = true;
+    downloadButton.textContent = 'Downloading...';
+
+    try {
+      const response = await fetch('/download_dla', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user_id
+        },
+        body: JSON.stringify({
+          genio_device: genioSelect.value,
+          device: deviceSelect.value
+        })
+      });
+
+      if (!response.ok) {
+        alert('Failed to download DLA file.');
+        downloadButton.disabled = false;
+        downloadButton.textContent = 'Download DLA';
+        return;
+      }
+
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = 'model.dla';
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        filename = disposition.split('filename=')[1].replace(/"/g, '');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
+
+    } catch (err) {
+      alert('Error downloading DLA file: ' + err);
+    }
+    downloadButton.disabled = false;
+    downloadButton.textContent = 'Download DLA';
+  }
 </script>
 
 </body>

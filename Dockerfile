@@ -11,6 +11,7 @@ RUN apt install -y python3-pip
 RUN tar zxvf neuronpilot-6.0.5_x86_64.tar.gz -C ./
 RUN bash -c "./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --version"
 RUN bash -c "pip install -r requirements.txt"
+ENV PATH="$HOME/.local/bin:$PATH"
 
 EXPOSE 80
 

@@ -1,4 +1,3 @@
-
 import subprocess, json, time
 from flask import (Flask, redirect, request, send_from_directory, jsonify, Response)
 from werkzeug.utils import secure_filename
@@ -41,6 +40,9 @@ def api_index():
             if action == 'upload_and_verify':
                 print('==> api_index: call upload_and_verify')
                 return upload_and_verify()
+            if action == 'convert_tflite':
+                print('==> api_index: call download_dla')
+                return download_dla()
     return html
 
 @app.route('/upload_and_verify', methods=['POST'])
@@ -88,28 +90,25 @@ def api_verify_model():
              'Connection': 'keep-alive',
              'Access-Control-Allow-Origin': '*'})
 
-@app.route('/get_available_devices', methods=['GET'])
-def get_available_devices():
+@app.route('/download_dla', methods=['POST'])
+def download_dla():
+    print("==> download_dla API called")  # Debugging statement
     user_id = request.headers.get('X-User-ID')
-    export_dir = os.path.join('users', user_id, 'export')
-    supported_families = {
-        'genio510': ['mdla3.0', 'vpu'],
-        'genio700': ['mdla3.0', 'vpu'],
-        'genio1200': ['mdla2.0', 'vpu'],
-    }
-    result = {}
-    if os.path.exists(export_dir):
-        for family, devices in supported_families.items():
-            family_dir = os.path.join(export_dir, family)
-            if os.path.isdir(family_dir):
-                available = []
-                for d in devices:
-                    if os.path.isdir(os.path.join(family_dir, d)):
-                        available.append(d)
-                if available:
-                    result[family] = available
-    print(result)
-    return jsonify(result)
+    data = request.get_json()
+    target_device = data.get('device').strip('.0')
+    file_path = f'./users/{user_id}/export/{target_device}/model.dla'
+    print(f"==> Looking for file: {file_path}")  # Debugging statement
+    if not os.path.exists(file_path):
+        print(f"==> File not found: {file_path}")  # Debugging statement
+        return jsonify({"error": "Requested file not found"}), 404
+
+    print(f"==> File found, sending: {file_path}")  # Debugging statement
+    return send_from_directory(
+        directory=os.path.dirname(file_path),
+        path=os.path.basename(file_path),
+        as_attachment=True,
+        mimetype='application/octet-stream'
+    )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8082, debug=False)
+    app.run(host='0.0.0.0', port=8085, debug=False)
