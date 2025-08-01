@@ -6,12 +6,30 @@ from utils.converter import convert_pytorch_to_tflite
 import torch
 import os
 import tensorflow as tf
+import time
+import shutil
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './uploads'
 
 @app.route('/', methods=['GET', 'POST'])
 def api_index():
+    # 清理超過一天未更新的 users/* 目錄
+    users_root = './users'
+    now = time.time()
+    expire_seconds = 24 * 60 * 60
+    if os.path.exists(users_root):
+        for user_dir in os.listdir(users_root):
+            user_path = os.path.join(users_root, user_dir)
+            if os.path.isdir(user_path):
+                try:
+                    mtime = os.path.getmtime(user_path)
+                    if now - mtime > expire_seconds:
+                        shutil.rmtree(user_path)
+                        print(f"[CLEANUP] Removed expired user dir: {user_path}")
+                except Exception as e:
+                    print(f"[CLEANUP] Error checking/removing {user_path}: {e}")
+
     with open('index.html', 'r') as file:
         html = file.read()
         pytorch_version = torch.__version__
@@ -111,4 +129,4 @@ def download_dla():
     )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8085, debug=False)
+    app.run(host='0.0.0.0', port=8086, debug=False)
