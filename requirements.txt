@@ -1,13 +1,30 @@
+# Web Framework
 Flask==3.1.0
-gunicorn
+gunicorn==21.2.0
+Werkzeug==3.0.4
 
-# Get PyTorch Toolset
-ultralytics  
-tf_keras
-sng4onnx>=1.0.1
-onnx_graphsurgeon>=0.3.26
+# File handling and security
+secure-filename==0.1.0
+
+# PyTorch Ecosystem
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+
+# TensorFlow and AI Edge
+tensorflow>=2.8.0,<2.16.0
+tf-keras>=2.8.0
 ai-edge-litert>=1.2.0,<1.4.0
+
+# ONNX Tools and Converters
 onnx>=1.12.0,<1.18.0
 onnx2tf>=1.26.3
 onnxslim>=0.1.59
-onnxruntime
+onnxruntime>=1.15.0
+sng4onnx>=1.0.1
+onnx-graphsurgeon>=0.3.26
+
+# Utility Libraries
+numpy>=1.21.0
+Pillow>=9.0.0
+requests>=2.28.0

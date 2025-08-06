@@ -303,7 +303,78 @@ document.addEventListener('DOMContentLoaded', function() {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.substring(6));
-                addLogMessage(data.message, data.error);
+                if (data.message) {
+                  const isError = data.error || data.message.includes('❌');
+                  addLogMessage(data.message, isError);
+                }
+                if (data.final) {
+                  addLogMessage('=======================================');
+                  // Update dropdowns
+                  const genioSelect = document.getElementById('genio-select');
+                  const deviceSelect = document.getElementById('device-select');
+
+                  // Clear and initialize dropdowns
+                  genioSelect.innerHTML = '<option value="">-- Select Device Family --</option>';
+                  deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+                  deviceSelect.disabled = true;
+
+                  // Add Genio 510 if any device is supported
+                  if (data.genio510.vpu || data.genio510.mdla2 || data.genio510.mdla3) {
+                    const option = document.createElement('option');
+                    option.value = 'genio510';
+                    option.textContent = 'Genio 510';
+                    genioSelect.appendChild(option);
+                    addLogMessage('Added Genio 510 to device family dropdown.');
+                  }
+
+                  // Add Genio 700 if any device is supported
+                  if (data.genio700.vpu || data.genio700.mdla2 || data.genio700.mdla3) {
+                    const option = document.createElement('option');
+                    option.value = 'genio700';
+                    option.textContent = 'Genio 700';
+                    genioSelect.appendChild(option);
+                    addLogMessage('Added Genio 700 to device family dropdown.');
+                  }
+
+                  // Add Genio 1200 if any device is supported
+                  if (data.genio1200.vpu || data.genio1200.mdla2 || data.genio1200.mdla3) {
+                    const option = document.createElement('option');
+                    option.value = 'genio1200';
+                    option.textContent = 'Genio 1200';
+                    genioSelect.appendChild(option);
+                    addLogMessage('Added Genio 1200 to device family dropdown.');
+                  }
+
+                  // Update target devices based on the selected family
+                  genioSelect.onchange = function () {
+                    const selectedFamily = genioSelect.value;
+                    deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
+                    if (selectedFamily) {
+                      if (data[selectedFamily]?.vpu) {
+                        const option = document.createElement('option');
+                        option.value = 'vpu';
+                        option.textContent = 'VPU';
+                        deviceSelect.appendChild(option);
+                      }
+                      if (data[selectedFamily]?.mdla2) {
+                        const option = document.createElement('option');
+                        option.value = 'mdla2';
+                        option.textContent = 'MDLA 2.0';
+                        deviceSelect.appendChild(option);
+                      }
+                      if (data[selectedFamily]?.mdla3) {
+                        const option = document.createElement('option');
+                        option.value = 'mdla3';
+                        option.textContent = 'MDLA 3.0';
+                        deviceSelect.appendChild(option);
+                      }
+                      deviceSelect.disabled = false;
+                    } else {
+                      deviceSelect.disabled = true;
+                    }
+                  };
+                  addLogMessage('Device dropdowns updated based on verification results.');
+                }
               } catch (e) {}
             }
           }
@@ -379,17 +450,17 @@ document.addEventListener('DOMContentLoaded', function() {
         <tbody>
             <tr>
                 <td>Genio 510</td>
-                <td>mdla3.0, vpu</td>
+                <td>MDLA 3.0, VPU</td>
                 <td>MDLA 3.0 + VPU</td>
             </tr>
             <tr>
                 <td>Genio 700</td>
-                <td>mdla3.0, vpu</td>
+                <td>MDLA 3.0, VPU</td>
                 <td>MDLA 3.0 + VPU</td>
             </tr>
             <tr>
                 <td>Genio 1200</td>
-                <td>mdla2.0, vpu</td>
+                <td>MDLA 2.0, VPU</td>
                 <td>MDLA 2.0 + VPU</td>
             </tr>
         </tbody>
@@ -397,11 +468,25 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
-  // Device mapping configuration
+  // Device mapping configuration - Updated for clarity and consistency
   const deviceMapping = {
-    'genio510': ['mdla3.0', 'vpu'],
-    'genio700': ['mdla3.0', 'vpu'],
-    'genio1200': ['mdla2.0', 'vpu']
+    'genio510': ['mdla3', 'vpu'],
+    'genio700': ['mdla3', 'vpu'],
+    'genio1200': ['mdla2', 'vpu']
+  };
+
+  // Device display names for better user experience
+  const deviceDisplayNames = {
+    'mdla2': 'MDLA 2.0',
+    'mdla3': 'MDLA 3.0', 
+    'vpu': 'VPU'
+  };
+
+  // Genio board display names
+  const genioDisplayNames = {
+    'genio510': 'Genio 510 (MDLA 3.0 + VPU)',
+    'genio700': 'Genio 700 (MDLA 3.0 + VPU)',
+    'genio1200': 'Genio 1200 (MDLA 2.0 + VPU)'
   };
 
   // Function to update supported devices for TFLite conversion
@@ -417,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
       deviceMapping[selectedGenio].forEach(function(device) {
         const option = document.createElement('option');
         option.value = device;
-        option.textContent = device;
+        option.textContent = deviceDisplayNames[device] || device;
         deviceSelect.appendChild(option);
       });
     } else {
@@ -427,65 +512,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 新增：根據後端回傳動態更新 Target Device Family 與 Target Device
   async function updateDeviceFamilyAndDevices() {
-    const user_id = getUserId();
     const genioSelect = document.getElementById('genio-select');
     const deviceSelect = document.getElementById('device-select');
-    // Device Compatibility Reference: 只允許這些 Genio Board
-    const supportedFamilies = {
-      'genio510': 'Genio 510',
-      'genio700': 'Genio 700',
-      'genio1200': 'Genio 1200'
-    };
+    
     genioSelect.innerHTML = '<option value="">-- Select Device Family --</option>';
     deviceSelect.innerHTML = '<option value="">-- Select Device Family First --</option>';
     deviceSelect.disabled = true;
-    try {
-      const res = await fetch('/get_available_devices', {
-        method: 'GET',
-        headers: { 'X-User-ID': user_id }
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      // 只顯示支援的 Genio Board
-      let hasFamily = false;
-      for (const family in supportedFamilies) {
-        if (data[family] && Array.isArray(data[family]) && data[family].length > 0) {
-          hasFamily = true;
-          const option = document.createElement('option');
-          option.value = family;
-          option.textContent = supportedFamilies[family];
-          genioSelect.appendChild(option);
-        }
-      }
-      if (!hasFamily) {
-        genioSelect.innerHTML = '<option value="">-- No Supported Device Family --</option>';
-        deviceSelect.innerHTML = '<option value="">-- No Device --</option>';
-        deviceSelect.disabled = true;
-        return;
-      }
-      // 當選擇 family 時，動態更新 device
-      genioSelect.onchange = function() {
-        const selected = genioSelect.value;
-        deviceSelect.innerHTML = '<option value="">-- Select Supported Device --</option>';
-        if (selected && data[selected] && data[selected].length > 0) {
-          deviceSelect.disabled = false;
-          data[selected].forEach(function(device) {
-            const option = document.createElement('option');
-            option.value = device;
-            option.textContent = device;
-            deviceSelect.appendChild(option);
-          });
-        } else {
-          deviceSelect.disabled = true;
-        }
-      };
-      // 若目前有選擇，立即觸發一次
-      genioSelect.onchange();
-    } catch (e) {
-      genioSelect.innerHTML = '<option value=\"\">-- Error Loading Device Family --</option>';
-      deviceSelect.innerHTML = '<option value=\"\">-- Error --</option>';
-      deviceSelect.disabled = true;
+    
+    // 使用本地配置而不是后端API（简化）
+    for (const family in genioDisplayNames) {
+      const option = document.createElement('option');
+      option.value = family;
+      option.textContent = genioDisplayNames[family];
+      genioSelect.appendChild(option);
     }
+    
+    // 更新 onChange 处理
+    genioSelect.onchange = function() {
+      updateSupportedDevices();
+      toggleDownloadButton();
+    };
   }
 
   // Function to add timestamped log messages
@@ -653,14 +699,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                                 if (data[selectedFamily]?.mdla2) {
                                     const option = document.createElement('option');
-                                    option.value = 'mdla2.0';
+                                    option.value = 'mdla2';
                                     option.textContent = 'MDLA 2.0';
                                     deviceSelect.appendChild(option);
                                     // addLogMessage('Added MDLA 2.0 to target device dropdown.');
                                 }
                                 if (data[selectedFamily]?.mdla3) {
                                     const option = document.createElement('option');
-                                    option.value = 'mdla3.0';
+                                    option.value = 'mdla3';
                                     option.textContent = 'MDLA 3.0';
                                     deviceSelect.appendChild(option);
                                     // addLogMessage('Added MDLA 3.0 to target device dropdown.');
