@@ -1,11 +1,6 @@
 # 🚀 MTK NeuronPilot AI Model Porting Platform
 
-A comprehensive web-based platform for converting AI models to MediaTek NPU-compatible DLA (Deep Learning Accelerator) form2. **Sel## 📁 Project Structure
-
-```
-MTK-NeuronPilot-API-docker/ject Structure Device Family**: Choose from Genio 510/700/1200
-3. **Select Target Device**: Pick VPU, MDLA 2.0, or MDLA 3.0
-4. **Download**: Click "Download DLA" to get your converted model
+A comprehensive web-based platform for converting AI models to MediaTek NPU-compatible DLA (Deep Learning Accelerator) 
 
 ## 📁 Project Structureis platform streamlines the deployment of AI models to MediaTek Genio development boards with automatic conversion pipeline and compatibility checking.
 
@@ -181,33 +176,6 @@ This interface streamlines the entire model porting workflow from code input to 
 2. **Select Device Family**: Choose from Genio 510/700/1200
 3. **Select Target Device**: Pick VPU, MDLA 2.0, or MDLA 3.0
 4. **Download**: Click "Download DLA" to get your converted model
-
-## �️ Frontend Interface Preview
-
-The platform provides an intuitive web interface for model conversion with real-time progress tracking and device selection capabilities.
-
-### Interactive Model Verification Interface
-
-![Frontend Interface](https://github.com/R300-AI/MTK-NeuronPilot-API-docker/blob/main/images/frontend.png)
-
-**Key Features Demonstrated:**
-- **Monaco Editor Integration**: Professional code editor with PyTorch syntax highlighting
-- **Real-time Conversion Logs**: Live progress updates during the PyTorch → ONNX → TFLite → DLA pipeline
-- **Dynamic Device Selection**: 
-  - Device family dropdown (Genio 510/700/1200) with automatic compatibility detection
-  - Target device selection showing available NPU options (VPU, MDLA 2.0, MDLA 3.0)
-- **Conversion Status Display**: Step-by-step progress with success/failure indicators
-- **Download Integration**: Direct download links for converted DLA files
-
-The screenshot shows:
-1. **Left Panel**: Monaco editor with PyTorch model code
-2. **Right Panel**: Live conversion logs showing successful model verification
-3. **Bottom Controls**: 
-   - Genio 510 selected as the target device family
-   - MDLA 3.0 dropdown opened showing available NPU targets
-   - Download DLA button ready for file retrieval
-
-This interface streamlines the entire model porting workflow from code input to DLA deployment.
 
 ## �📁 Project Structure
 
