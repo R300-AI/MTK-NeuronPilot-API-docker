@@ -1,6 +1,13 @@
 # 🚀 MTK NeuronPilot AI Model Porting Platform
 
-A comprehensive web-based platform for converting AI models to MediaTek NPU-compatible DLA (Deep Learning Accelerator) formats. This platform streamlines the deployment of AI models to MediaTek Genio development boards with automatic conversion pipeline and compatibility checking.
+A comprehensive web-based platform for converting AI models to MediaTek NPU-compatible DLA (Deep Learning Accelerator) form2. **Sel## 📁 Project Structure
+
+```
+MTK-NeuronPilot-API-docker/ject Structure Device Family**: Choose from Genio 510/700/1200
+3. **Select Target Device**: Pick VPU, MDLA 2.0, or MDLA 3.0
+4. **Download**: Click "Download DLA" to get your converted model
+
+## 📁 Project Structureis platform streamlines the deployment of AI models to MediaTek Genio development boards with automatic conversion pipeline and compatibility checking.
 
 ## ✨ Features
 
@@ -26,6 +33,33 @@ A comprehensive web-based platform for converting AI models to MediaTek NPU-comp
 - **Interactive UI**: Tab-based interface for different input methods
 - **Dynamic Dropdowns**: Automatic device selection based on compatibility
 - **Real-time Logs**: Live feedback during conversion process
+
+## 🖥️ Frontend Interface Preview
+
+The platform provides an intuitive web interface for model conversion with real-time progress tracking and device selection capabilities.
+
+### Interactive Model Verification Interface
+
+![Frontend Interface](https://github.com/R300-AI/MTK-NeuronPilot-API-docker/blob/main/images/frontend.png)
+
+**Key Features Demonstrated:**
+- **Monaco Editor Integration**: Professional code editor with PyTorch syntax highlighting
+- **Real-time Conversion Logs**: Live progress updates during the PyTorch → ONNX → TFLite → DLA pipeline
+- **Dynamic Device Selection**: 
+  - Device family dropdown (Genio 510/700/1200) with automatic compatibility detection
+  - Target device selection showing available NPU options (VPU, MDLA 2.0, MDLA 3.0)
+- **Conversion Status Display**: Step-by-step progress with success/failure indicators
+- **Download Integration**: Direct download links for converted DLA files
+
+The screenshot shows:
+1. **Left Panel**: Monaco editor with PyTorch model code
+2. **Right Panel**: Live conversion logs showing successful model verification
+3. **Bottom Controls**: 
+   - Genio 510 selected as the target device family
+   - MDLA 3.0 dropdown opened showing available NPU targets
+   - Download DLA button ready for file retrieval
+
+This interface streamlines the entire model porting workflow from code input to DLA deployment.
 
 ## 🏗️ Architecture
 
@@ -75,11 +109,11 @@ A comprehensive web-based platform for converting AI models to MediaTek NPU-comp
 2. **Build and run with Docker**
    ```bash
    docker build -t mtk-neuronpilot .
-   docker run -p 8090:8090 mtk-neuronpilot
+   docker run -p 5000:80 mtk-neuronpilot
    ```
 
 3. **Access the platform**
-   Open your browser and navigate to: `http://localhost:8090`
+   Open your browser and navigate to: `http://localhost:5000`
 
 ### Option 2: Local Development
 
@@ -154,7 +188,7 @@ The platform provides an intuitive web interface for model conversion with real-
 
 ### Interactive Model Verification Interface
 
-![Frontend Interface](./images/frontend.png)
+![Frontend Interface](https://github.com/R300-AI/MTK-NeuronPilot-API-docker/blob/main/images/frontend.png)
 
 **Key Features Demonstrated:**
 - **Monaco Editor Integration**: Professional code editor with PyTorch syntax highlighting

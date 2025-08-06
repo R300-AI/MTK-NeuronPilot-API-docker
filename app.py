@@ -384,4 +384,4 @@ if __name__ == '__main__':
     - Host: 0.0.0.0 (所有網路介面)
     - Debug: False (關閉除錯模式)
     """
-    app.run(host='0.0.0.0', port=8092, debug=False)
+    app.run(host='0.0.0.0', port=80, debug=False)
