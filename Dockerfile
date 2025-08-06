@@ -17,8 +17,8 @@ RUN if [ ! -f "neuronpilot-6.0.5_x86_64.tar.gz" ]; then \
     fi
 RUN tar zxvf neuronpilot-6.0.5_x86_64.tar.gz -C ./
 RUN bash -c "./neuronpilot-6.0.5/neuron_sdk/host/bin/ncc-tflite --version"
-RUN bash -c "pip install -r requirements.txt"
-ENV PATH="$HOME/.local/bin:$PATH"
+RUN bash -c "pip install --timeout 1000 --retries 5 -r requirements.txt"
+ENV PATH="/root/.local/bin:$PATH"
 
 EXPOSE 80
 

@@ -3,12 +3,9 @@ Flask==3.1.0
 gunicorn==21.2.0
 Werkzeug==3.0.4
 
-# File handling and security
-secure-filename==0.1.0
-
 # PyTorch Ecosystem
-torch>=2.0.0
-torchvision>=0.15.0
+torch>=2.0.0 --index-url https://download.pytorch.org/whl/cpu
+torchvision>=0.15.0 --index-url https://download.pytorch.org/whl/cpu
 ultralytics>=8.0.0
 
 # TensorFlow and AI Edge
