@@ -234,9 +234,19 @@ def upload_and_verify():
     file = request.files['upload_pretrained_file']
     filename = secure_filename(file.filename)
     
-    # Create user directory and save file
+    # Create user directory and clean old conversion results
     save_dir = f'./users/{user_id}'
     os.makedirs(save_dir, exist_ok=True)
+    
+    # Clean previous conversion results (DLA files) before new upload
+    if os.path.exists(save_dir):
+        for root, dirs, files in os.walk(save_dir):
+            for filename_to_remove in files:
+                if filename_to_remove.endswith(('.vpu.dla', '.mdla2.dla', '.mdla3.dla')):
+                    old_dla_path = os.path.join(root, filename_to_remove)
+                    os.remove(old_dla_path)
+                    print(f"[CLEANUP] Removed old DLA file: {old_dla_path}")
+    
     save_path = os.path.join(save_dir, filename)
     file.save(save_path)
     
@@ -332,9 +342,9 @@ def download_dla():
     
     # Device type to file suffix mapping
     device_suffix_map = {
-        'vpu': '_vpu.dla',
-        'mdla2': '_mdla2.dla', 
-        'mdla3': '_mdla3.dla'
+        'vpu': '.vpu.dla',
+        'mdla2': '.mdla2.dla', 
+        'mdla3': '.mdla3.dla'
     }
     
     # Validate device type
@@ -342,19 +352,21 @@ def download_dla():
         print(f"==> Invalid device type: {target_device}")
         return jsonify({"error": "Invalid device type"}), 400
     
-    # Search for DLA file in user directory (recursive search)
+    # Search for DLA file in user directory (find the most recent one)
     user_dir = f'./users/{user_id}'
     dla_suffix = device_suffix_map[target_device]
     dla_file = None
+    latest_mtime = 0
     
     if os.path.exists(user_dir):
         for root, dirs, files in os.walk(user_dir):
             for filename in files:
                 if filename.endswith(dla_suffix):
-                    dla_file = os.path.join(root, filename)
-                    break
-            if dla_file:  # Exit outer loop if file found
-                break
+                    file_path = os.path.join(root, filename)
+                    file_mtime = os.path.getmtime(file_path)
+                    if file_mtime > latest_mtime:
+                        latest_mtime = file_mtime
+                        dla_file = file_path
     
     # Validate file existence
     if not dla_file or not os.path.exists(dla_file):
@@ -363,11 +375,12 @@ def download_dla():
 
     # Serve the file
     print(f"==> Serving DLA file: {dla_file}")
+    original_filename = os.path.basename(dla_file)
     return send_from_directory(
         directory=os.path.dirname(dla_file),
-        path=os.path.basename(dla_file),
+        path=original_filename,
         as_attachment=True,
-        download_name=f'model_{target_device}.dla',
+        download_name=original_filename,
         mimetype='application/octet-stream'
     )
 

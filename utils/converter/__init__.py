@@ -18,7 +18,6 @@
 
 import json
 import os
-import shutil
 from .format import verify_pytorch_format
 from .convert import onnx_to_tflite, tflite_to_vpu, tflite_to_mdla2, tflite_to_mdla3
 
@@ -59,7 +58,20 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
     """
     success = True
     
-    # Step 1: Initialize conversion process
+    # Step 1: Clean previous conversion results for this user
+    user_dir = f'./users/{user_id}'
+    if os.path.exists(user_dir):
+        dla_files_removed = 0
+        for root, dirs, files in os.walk(user_dir):
+            for filename_to_remove in files:
+                if filename_to_remove.endswith(('.vpu.dla', '.mdla2.dla', '.mdla3.dla')):
+                    old_dla_path = os.path.join(root, filename_to_remove)
+                    os.remove(old_dla_path)
+                    dla_files_removed += 1
+        if dla_files_removed > 0:
+            yield f'data: {json.dumps({"message": f"🧹 Cleaned {dla_files_removed} previous DLA file(s)"})}\n\n'
+    
+    # Step 2: Initialize conversion process
     try:
         yield f'data: {json.dumps({"message": "🚀 PyTorch conversion pipeline started"})}\n\n'
         yield f'data: {json.dumps({"message": f"📝 Model class: {model_entrypoint}"})}\n\n'
@@ -68,7 +80,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
         success = False
         yield f'data: {json.dumps({"message": f"❌ Initialization failed: {str(e)}", "error": True})}\n\n'
 
-    # Step 2: PyTorch to ONNX conversion
+    # Step 3: PyTorch to ONNX conversion
     yield f'data: {json.dumps({"message": "🔄 Starting PyTorch → ONNX conversion..."})}\n\n'
     try:
         onnx_path = verify_pytorch_format(user_id, pytorch_code, model_entrypoint, input_shape)
@@ -78,7 +90,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
         yield f'data: {json.dumps({"message": f"❌ ONNX conversion failed: {str(e)}", "error": True})}\n\n'
         return
 
-    # Step 3: ONNX to TensorFlow Lite conversion
+    # Step 4: ONNX to TensorFlow Lite conversion
     yield f'data: {json.dumps({"message": "🔄 Starting ONNX → TensorFlow Lite conversion..."})}\n\n'
     try:
         tflite_path = onnx_to_tflite(onnx_path)
@@ -88,7 +100,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
         yield f'data: {json.dumps({"message": f"❌ TensorFlow Lite conversion failed: {str(e)}", "error": True})}\n\n'
         return
 
-    # Step 4: DLA format conversions
+    # Step 5: DLA format conversions
     yield f'data: {json.dumps({"message": "🔄 Testing NPU device compatibility..."})}\n\n'
     
     # Initialize DLA support tracking
@@ -99,7 +111,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
     mdla2_path = None
     mdla3_path = None
 
-    # Step 4a: TFLite to VPU DLA
+    # Step 5a: TFLite to VPU DLA
     yield f'data: {json.dumps({"message": "Testing VPU compatibility..."})}\n\n'
     try:
         vpu_path = tflite_to_vpu(tflite_path)
@@ -112,7 +124,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
         yield f'data: {json.dumps({"message": f"❌ VPU conversion failed: {str(e)}", "error": True})}\n\n'
 
     
-    # Step 4b: TFLite to MDLA2 DLA
+    # Step 5b: TFLite to MDLA2 DLA
     yield f'data: {json.dumps({"message": "Testing MDLA 2.0 compatibility..."})}\n\n'
     try:
         mdla2_path = tflite_to_mdla2(tflite_path)
@@ -124,7 +136,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
     except RuntimeError as e:
         yield f'data: {json.dumps({"message": f"❌ MDLA 2.0 conversion failed: {str(e)}", "error": True})}\n\n'
 
-    # Step 4c: TFLite to MDLA3 DLA
+    # Step 5c: TFLite to MDLA3 DLA
     yield f'data: {json.dumps({"message": "Testing MDLA 3.0 compatibility..."})}\n\n'
     try:
         mdla3_path = tflite_to_mdla3(tflite_path)
@@ -136,7 +148,7 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
     except RuntimeError as e:
         yield f'data: {json.dumps({"message": f"❌ MDLA 3.0 conversion failed: {str(e)}", "error": True})}\n\n'
 
-    # Step 5: Generate compatibility summary
+    # Step 6: Generate compatibility summary
     yield f'data: {json.dumps({"message": "📊 Generating compatibility summary..."})}\n\n'
     
     # Check if NeuronPilot SDK is available for status display
@@ -159,36 +171,6 @@ def convert_pytorch_to_tflite(user_id, pytorch_code, model_entrypoint, input_sha
     yield f'data: {json.dumps({"message": f"MDLA 2.0: {mdla2_status}"})}\n\n'
     yield f'data: {json.dumps({"message": f"MDLA 3.0: {mdla3_status}"})}\n\n'
     yield f'data: {json.dumps({"message": "==========================================="})}\n\n'
-
-    # Step 6: Process and organize DLA files (if any were generated)
-    try:
-        # Create organized export directory structure
-        export_root = os.path.join('./users', str(user_id), 'export')
-        if os.path.exists(export_root):
-            shutil.rmtree(export_root)
-        os.makedirs(export_root, exist_ok=True)
-
-        # Copy successful conversions to organized structure
-        if vpu_supported and vpu_path:
-            vpu_export_dir = os.path.join(export_root, 'vpu')
-            os.makedirs(vpu_export_dir, exist_ok=True)
-            vpu_export_path = os.path.join(vpu_export_dir, 'model.dla')
-            shutil.copyfile(vpu_path, vpu_export_path)
-            
-        if mdla2_supported and mdla2_path:
-            mdla2_export_dir = os.path.join(export_root, 'mdla2')
-            os.makedirs(mdla2_export_dir, exist_ok=True)
-            mdla2_export_path = os.path.join(mdla2_export_dir, 'model.dla')
-            shutil.copyfile(mdla2_path, mdla2_export_path)
-            
-        if mdla3_supported and mdla3_path:
-            mdla3_export_dir = os.path.join(export_root, 'mdla3')
-            os.makedirs(mdla3_export_dir, exist_ok=True)
-            mdla3_export_path = os.path.join(mdla3_export_dir, 'model.dla')
-            shutil.copyfile(mdla3_path, mdla3_export_path)
-
-    except Exception as e:
-        yield f'data: {json.dumps({"message": f"⚠️ File organization warning: {str(e)}", "error": True})}\n\n'
 
     # Step 7: Generate final conclusion
     success = False

@@ -30,8 +30,9 @@ Model Format Conversion Functions
 
 Functions
 ---------
-shape_match : 張量形狀相容性檢查
 generate_dla_filename : 統一的 DLA 檔名生成函數
+convert_tflite_to_dla : 通用的 TFLite → DLA 轉換函數
+shape_match : 張量形狀相容性檢查
 onnx_to_tflite : ONNX 轉 TensorFlow Lite 格式
 tflite_to_vpu : TensorFlow Lite 轉 VPU DLA 格式
 tflite_to_mdla2 : TensorFlow Lite 轉 MDLA 2.0 DLA 格式
@@ -135,14 +136,16 @@ def shape_match(a, b):
     Returns
     -------
     bool
-        如果兩個形狀相容則返回 True，否則返回 False。
-        相容條件包括：完全相同、NCHW↔NHWC 轉換、其他維度排列組合。
+        True 表示形狀相容，False 表示不相容。
     """
-    if tuple(a) == tuple(b):
+    if len(a) != len(b):
+        return False
+    if a == b:
         return True
-    if len(a) == 4 and len(b) == 4:
-        # Allow (N, C, H, W) <-> (N, H, W, C)
-        if a[0] == b[0] and a[1:] == b[-1:] + b[1:3]:
+    
+    if len(a) == 4:  # 4D tensors (NCHW/NHWC)
+        # Check different permutations for NCHW ↔ NHWC
+        if a == [b[0], b[3], b[1], b[2]]:  # NCHW → NHWC
             return True
         if a[0] == b[0] and a[1:4] == b[1:4][::-1]:
             return True
@@ -155,55 +158,6 @@ def shape_match(a, b):
         if a[0] == b[0] and a[1] == b[3] and a[2] == b[1] and a[3] == b[2]:
             return True
     return False
-
-def tflite_to_mdla3(tflite_path):
-    """
-    TensorFlow Lite 轉 MDLA 3.0 DLA 格式
-    ===================================
-    使用 ncc-tflite 工具將 TensorFlow Lite 模型轉換為 MediaTek MDLA 3.0 相容的 DLA 格式。
-    適用於 Genio 1200 等搭載 MDLA 3.0 NPU 的開發板。
-
-    Parameters
-    ----------
-    tflite_path : str
-        輸入的 TensorFlow Lite 模型檔案完整路徑。
-
-    Returns
-    -------
-    str or None
-        成功時返回生成的 DLA 檔案完整路徑，失敗時返回 None。
-
-    Raises
-    ------
-    RuntimeError
-        當 ncc-tflite 轉換失敗時拋出，包含詳細的錯誤訊息。
-    """
-    return convert_tflite_to_dla(tflite_path, 'mdla3.0', 'mdla3')
-
-def tflite_to_mdla2(tflite_path):
-    """
-    TensorFlow Lite 轉 MDLA 2.0 DLA 格式
-    ===================================
-    使用 ncc-tflite 工具將 TensorFlow Lite 模型轉換為 MediaTek MDLA 2.0 相容的 DLA 格式。
-    適用於 Genio 700 等搭載 MDLA 2.0 NPU 的開發板。
-
-    Parameters
-    ----------
-    tflite_path : str
-        輸入的 TensorFlow Lite 模型檔案完整路徑。
-
-    Returns
-    -------
-    str or None
-        成功時返回生成的 DLA 檔案完整路徑，失敗時返回 None。
-
-    Raises
-    ------
-    RuntimeError
-        當 ncc-tflite 轉換失敗時拋出，包含詳細的錯誤訊息。
-    """
-    return convert_tflite_to_dla(tflite_path, 'mdla2.0', 'mdla2')
-    
 
 def tflite_to_vpu(tflite_path):
     """
@@ -228,6 +182,54 @@ def tflite_to_vpu(tflite_path):
         當 ncc-tflite 轉換失敗時拋出，包含詳細的錯誤訊息。
     """
     return convert_tflite_to_dla(tflite_path, 'vpu', 'vpu')
+
+def tflite_to_mdla2(tflite_path):
+    """
+    TensorFlow Lite 轉 MDLA 2.0 DLA 格式
+    ===================================
+    使用 ncc-tflite 工具將 TensorFlow Lite 模型轉換為 MediaTek MDLA 2.0 相容的 DLA 格式。
+    適用於 Genio 700 等搭載 MDLA 2.0 NPU 的開發板。
+
+    Parameters
+    ----------
+    tflite_path : str
+        輸入的 TensorFlow Lite 模型檔案完整路徑。
+
+    Returns
+    -------
+    str or None
+        成功時返回生成的 DLA 檔案完整路徑，失敗時返回 None。
+
+    Raises
+    ------
+    RuntimeError
+        當 ncc-tflite 轉換失敗時拋出，包含詳細的錯誤訊息。
+    """
+    return convert_tflite_to_dla(tflite_path, 'mdla2.0', 'mdla2')
+
+def tflite_to_mdla3(tflite_path):
+    """
+    TensorFlow Lite 轉 MDLA 3.0 DLA 格式
+    ===================================
+    使用 ncc-tflite 工具將 TensorFlow Lite 模型轉換為 MediaTek MDLA 3.0 相容的 DLA 格式。
+    適用於 Genio 1200 等搭載 MDLA 3.0 NPU 的開發板。
+
+    Parameters
+    ----------
+    tflite_path : str
+        輸入的 TensorFlow Lite 模型檔案完整路徑。
+
+    Returns
+    -------
+    str or None
+        成功時返回生成的 DLA 檔案完整路徑，失敗時返回 None。
+
+    Raises
+    ------
+    RuntimeError
+        當 ncc-tflite 轉換失敗時拋出，包含詳細的錯誤訊息。
+    """
+    return convert_tflite_to_dla(tflite_path, 'mdla3.0', 'mdla3')
 
 def onnx_to_tflite(onnx_path):
     """
